@@ -2,7 +2,7 @@ module org.halext.deltaseeker {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.base;
-    requires json.simple;
+    requires transitive json.simple;
     requires transitive javafx.graphics;
 
     opens org.halext.deltaseeker to javafx.fxml;
