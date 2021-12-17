@@ -25,6 +25,7 @@ public class PrimaryController {
 
     @FXML
     private void postAccessToken() throws IOException, Exception {
+        Client.retrieveKeyFile();
         Client.postAccessToken();
     }
 }
