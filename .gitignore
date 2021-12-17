@@ -26,3 +26,17 @@ target/classes/org/halext/deltaseeker/PrimaryController.class
 target/classes/org/halext/deltaseeker/SecondaryController.class
 target/classes/org/halext/deltaseeker/service/TDClient.class
 target/classes/module-info.class
+target/classes/module-info.class
+target/classes/org/halext/deltaseeker/ChartController.class
+target/classes/org/halext/deltaseeker/DeltaSeeker.class
+target/classes/org/halext/deltaseeker/DSApp.class
+target/classes/org/halext/deltaseeker/primary.fxml
+target/classes/org/halext/deltaseeker/PrimaryController.class
+target/classes/org/halext/deltaseeker/secondary.fxml
+target/classes/org/halext/deltaseeker/SecondaryController.class
+target/classes/org/halext/deltaseeker/training.fxml
+target/classes/org/halext/deltaseeker/service/TDClient.class
+target/classes/org/halext/deltaseeker/service/data/Historical$SortCandle.class
+target/maven-archiver/pom.properties
+target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
+target/deltaseeker-1.0-BETA.jar
