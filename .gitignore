@@ -25,3 +25,4 @@ target/classes/org/halext/deltaseeker/DSApp.class
 target/classes/org/halext/deltaseeker/PrimaryController.class
 target/classes/org/halext/deltaseeker/SecondaryController.class
 target/classes/org/halext/deltaseeker/service/TDClient.class
+target/classes/module-info.class

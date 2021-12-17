@@ -8,8 +8,6 @@
 <VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.halext.deltaseeker.PrimaryController">
    <children>
       <Label text="Primary View" />
-      <Button fx:id="primaryButton" onAction="#switchToSecondary" text="Switch to Secondary View" />
-      <Button fx:id="primaryButton1" layoutX="30.0" layoutY="67.0" onAction="#switchToChart" text="Switch to Chart View" />
       <Button fx:id="primaryButton11" layoutX="43.0" layoutY="112.0" onAction="#postAccessToken" text="Post Access Token" />
       <Button mnemonicParsing="false" onAction="#switchToTrainingMode" text="Switch to Training Mode" />
    </children>

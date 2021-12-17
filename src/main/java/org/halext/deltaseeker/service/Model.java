@@ -6,6 +6,7 @@ public class Model {
     
     public static void createPriceHistory( String ticker ) throws IOException {
         try {
+            Client.retrieveKeyFile();
             Parser.parsePriceHistory( Client.getPriceHistory( ticker ) );
         } catch (org.json.simple.parser.ParseException e) {
             e.printStackTrace();
