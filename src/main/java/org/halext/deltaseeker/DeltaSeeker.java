@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * DeltaSeeker App
  */
-public class DSApp extends Application {
+public class DeltaSeeker extends Application {
 
     private static Scene scene;
 
@@ -27,7 +27,7 @@ public class DSApp extends Application {
     }
 
     private static Parent loadFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(DSApp.class.getResource(fxml + ".fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(DeltaSeeker.class.getResource(fxml + ".fxml"));
         return fxmlLoader.load();
     }
 

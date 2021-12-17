@@ -9,18 +9,8 @@ import javafx.fxml.FXML;
 public class PrimaryController {
 
     @FXML
-    private void switchToSecondary() throws IOException {
-        DSApp.setRoot("secondary");
-    }
-
-    @FXML
-    private void switchToChart() throws IOException {
-        DSApp.setRoot("chart");
-    }
-
-    @FXML
     private void switchToTrainingMode() throws IOException {
-        DSApp.setRoot("training");
+        DeltaSeeker.setRoot("training");
     }
 
     @FXML
