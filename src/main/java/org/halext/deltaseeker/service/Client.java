@@ -6,15 +6,21 @@ import java.io.*;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
 
-import java.io.InputStreamReader;
 import javax.net.ssl.HttpsURLConnection;
 
 public class Client {
 
-    static public String TDApiKey = "<INSERT-API-KEY>";
-    static public String TDRefreshToken = "<INSERT-REFRESH-TOKEN>";
+    static public String TD_API_KEY = "<INSERT-API-KEY>";
+    static public String TD_REFRESH_TOKEN = "<INSERT-REFRESH-TOKEN>";
 
     static public String AccessToken;
+
+    public static void retrieveKeyFile() throws FileNotFoundException, IOException {
+        BufferedReader apiReader = new BufferedReader( new FileReader("C:/Users/starw/iCloudDrive/Documents/Java/deltaseeker/src/api.txt") );
+        TD_API_KEY = apiReader.readLine();
+        TD_REFRESH_TOKEN = apiReader.readLine();
+        apiReader.close();
+    }
     
     public static void postAccessToken() throws IOException, ParseException {
         String url = "https://api.tdameritrade.com/v1/oauth2/token";
