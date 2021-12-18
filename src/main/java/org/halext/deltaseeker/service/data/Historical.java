@@ -4,17 +4,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 public class Historical {
     
+    static double maxOpen;
+    static double maxClose;
+    static double maxLow;
+    static double maxHigh;
+    static double meanClose;
+
     public static class Candle {
         long volume;
-        public double high;
-        public double low;
-        public double open;
-        public double close;
+        double high;
+        double low;
+        double open;
+        double close;
         Long rawDatetime;
-        public Date datetime;
+        Date datetime;
 
         Candle(long v, double h, double l, double o, double c, Long rdt, Date dt) {
             this.volume = v;
@@ -24,6 +31,26 @@ public class Historical {
             this.close = c;
             this.datetime = dt;
             this.rawDatetime = rdt;
+        }
+
+        public double getHigh() {
+            return this.high;
+        }
+
+        public double getLow() {
+            return this.low;
+        }
+
+        public double getClose() {
+            return this.close;
+        }
+
+        public double getOpen() {
+            return this.open;
+        }
+
+        public Date getDatetime() {
+            return this.datetime;
         }
 
     }
@@ -38,30 +65,57 @@ public class Historical {
         }
     }
 
-    public static ArrayList<Candle> candles;
 
-    public Historical() {
-        
+    private Historical() {
+
     }
 
+    public static List<Candle> candles;
+
     public static void addCandle(long v, double h, double l, double o, double c, Long rdt, Date dt) {
-        if ( candles == null ) {
-            candles = new ArrayList<Candle>();
-        }
+        if ( candles == null ) 
+            candles = new ArrayList<>();
         
-        Candle new_candle = new Candle(v,h,l,o,c,rdt,dt);
-        candles.add(new_candle);
+        if ( o > maxOpen )
+            maxOpen = o;
+
+        if ( c > maxClose )
+            maxClose = c;
+
+        if ( h > maxHigh )
+            maxHigh = h;
+
+        if ( l > maxLow )
+            maxLow = l;
+
+        meanClose += c;
+
+        Candle newCandle = new Candle(v,h,l,o,c,rdt,dt);
+        candles.add(newCandle);
+    }
+
+    public static double getMaxOpen() {
+        return maxOpen;
+    }
+
+    public static double getMaxClose() {
+        return maxClose;
+    }
+
+    public static double getMaxHigh() {
+        return maxHigh;
+    }
+
+    public static double getMaxLow() {
+        return maxLow;
+    }
+
+    public static double getMeanClose() {
+        return meanClose / candles.size();
     }
 
     public static void sortCandles() {
         Collections.sort(candles, new SortCandle());
     }
-
-    public static void printCandles() {
-        for ( int i = 0; i < candles.size(); i++ ) {
-            System.out.println(candles.get(i).open + " / " + candles.get(i).close + " - " + candles.get(i).datetime);
-        }
-    }
-
 
 }

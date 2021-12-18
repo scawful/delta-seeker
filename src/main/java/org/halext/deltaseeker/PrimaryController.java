@@ -14,8 +14,9 @@ public class PrimaryController {
     }
 
     @FXML
-    private void postAccessToken() throws IOException, Exception {
-        Client.retrieveKeyFile();
-        Client.postAccessToken();
+    private void postAccessToken() throws IOException, org.json.simple.parser.ParseException {
+        Client client = new Client();
+        client.retrieveKeyFile();
+        client.postAccessToken();
     }
 }

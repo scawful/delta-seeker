@@ -10,19 +10,27 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class Client {
 
-    static public String TD_API_KEY = "<INSERT-API-KEY>";
-    static public String TD_REFRESH_TOKEN = "<INSERT-REFRESH-TOKEN>";
+    public Client() {
+        
+    }
 
-    static public String AccessToken;
+    private static String CONST_TICKER = "{ticker}";
+    private String TD_API_KEY = "<INSERT-API-KEY>";
+    private String TD_REFRESH_TOKEN = "<INSERT-REFRESH-TOKEN>";
 
-    public static void retrieveKeyFile() throws FileNotFoundException, IOException {
-        BufferedReader apiReader = new BufferedReader( new FileReader("C:/Users/starw/iCloudDrive/Documents/Java/deltaseeker/src/api.txt") );
-        TD_API_KEY = apiReader.readLine();
-        TD_REFRESH_TOKEN = apiReader.readLine();
-        apiReader.close();
+    public String AccessToken;
+
+    public void retrieveKeyFile() throws IOException {
+        String apiFileLocation = "/Users/scawful/Code/Java/delta-seeker/src/api.txt";
+        try ( BufferedReader apiReader = new BufferedReader( new FileReader(apiFileLocation) )) {
+            TD_API_KEY = apiReader.readLine();
+            TD_REFRESH_TOKEN = apiReader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
-    public static void postAccessToken() throws IOException, ParseException {
+    public void postAccessToken() throws IOException, ParseException {
         String url = "https://api.tdameritrade.com/v1/oauth2/token";
         URL u = new URL(url);
 
@@ -57,12 +65,8 @@ public class Client {
 
     }
 
-    public static JSONObject getPriceHistory( String ticker ) throws IOException, ParseException {
-        String baseUrl = "https://api.tdameritrade.com/v1/marketdata/{ticker}/pricehistory?apikey=" + TD_API_KEY  + "&periodType=ytd&period=1&frequencyType=daily&frequency=1&needExtendedHoursData=true";
-        String newUrl = baseUrl.replace("{ticker}", ticker);
-        URL u = new URL(newUrl);
-
-        System.out.println(newUrl);
+    private JSONObject downloadData( String url ) throws IOException, ParseException {
+        URL u = new URL(url);
 
         HttpURLConnection connection = (HttpURLConnection) u.openConnection();
         connection.setRequestMethod("GET");
@@ -80,5 +84,37 @@ public class Client {
         JSONObject jo = (JSONObject) response;
         in.close();
         return jo;
+    }
+
+    public JSONObject getPriceHistory( String ticker, String pType, String p, String fType, String f ) throws IOException, ParseException {
+        // https://api.tdameritrade.com/v1/marketdata/{ticker}/pricehistory?apikey=" + TD_API_KEY  + "&periodType=ytd&period=1&frequencyType=daily&frequency=1&needExtendedHoursData=true
+        String baseUrl = "https://api.tdameritrade.com/v1/marketdata/{ticker}/pricehistory?apikey=" + TD_API_KEY;
+        String newUrl = baseUrl.replace(CONST_TICKER, ticker);
+
+        if ( pType != null )
+            newUrl += "&periodType=" + pType;
+
+        if ( p != null )
+            newUrl += "&period=" + p;
+
+        if ( fType != null )
+            newUrl += "&frequencyType=" + fType;
+
+        if ( f != null )
+            newUrl += "&frequency=" + f;
+
+        return downloadData(newUrl);
+    }
+
+    public JSONObject getQuote( String ticker ) throws IOException, ParseException {
+        String baseUrl = "https://api.tdameritrade.com/v1/marketdata/TLT/quotes?apikey=" + TD_API_KEY;
+        String newUrl = baseUrl.replace(CONST_TICKER, ticker);
+        return downloadData(newUrl);
+    }
+
+    public JSONObject getInstrument( String ticker ) throws IOException, ParseException { 
+        String baseUrl = "https://api.tdameritrade.com/v1/instruments?apikey=" + TD_API_KEY  + "&symbol={ticker}&projection=fundamental";
+        String newUrl = baseUrl.replace(CONST_TICKER, ticker);
+        return downloadData(newUrl);
     }
 }

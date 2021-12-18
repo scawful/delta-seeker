@@ -7,10 +7,16 @@ import java.util.Date;
 import java.util.Iterator;
 
 import org.halext.deltaseeker.service.data.Historical;
+import org.halext.deltaseeker.service.data.Quote;
+import org.halext.deltaseeker.service.data.Instrument;
 
 public class Parser {
+
+    public Parser() {
+
+    }
     
-    public static void parsePriceHistory( JSONObject jo ) {
+    public void parsePriceHistory( JSONObject jo ) {
         JSONArray candles = (JSONArray) jo.get("candles");
 
 		@SuppressWarnings("unchecked")
@@ -24,11 +30,30 @@ public class Parser {
             double close = (double) candle.get("close");
             Long rawDatetime = (Long) candle.get("datetime");
             Date datetime = new java.util.Date((long) candle.get("datetime") );
-            System.out.println(datetime.toString());
             Historical.addCandle(volume, high, low, open, close, rawDatetime, datetime);
 		}   
         
         Historical.sortCandles();
-        Historical.printCandles();
+    }
+
+    // @SuppressWarnings("unchecked")
+    public void parseFundamentalData( JSONObject jo ) {
+        JSONObject masterObject = (JSONObject) jo.get("TLT");
+        JSONObject fundamentalObject = (JSONObject) masterObject.get("fundamental");
+
+        Instrument.setSymbol((String) fundamentalObject.remove("symbol"));
+
+        for (Object key : fundamentalObject.keySet()) {
+            Instrument.insertFundamental((String) key, fundamentalObject.get(key));
+        }
+    }
+
+    public double getVolatility( JSONObject jo ) {
+        JSONObject quote = (JSONObject) jo.get("TLT");        
+        return (double) quote.get("volatility");
+    }
+
+    public int getNumCandles() {
+        return Historical.candles.size();
     }
 }

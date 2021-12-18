@@ -25,8 +25,8 @@ public class TrainingController {
         series.setName(ticker);
         for ( int i = 0; i < Historical.candles.size(); i++ )
         {
-            String shortDate = Historical.candles.get(i).datetime.toString().substring(4,10);
-            series.getData().add(new XYChart.Data<>(shortDate, Historical.candles.get(i).open ));
+            String shortDate = Historical.candles.get(i).getDatetime().toString().substring(4,10);
+            series.getData().add(new XYChart.Data<>(shortDate, Historical.candles.get(i).getOpen() ));
         }
         trainingChart.getData().add(series);
         series.getNode().setStyle("-fx-stroke: #405050;");
@@ -52,8 +52,8 @@ public class TrainingController {
 
     @FXML
     private void generateModel() throws IOException {
-       
-        Model.createPriceHistory( tickerInput.getText() );
+        Model pricePredictionModel = new Model();
+        pricePredictionModel.createPriceHistory( tickerInput.getText() );
         populateData( tickerInput.getText() );
     }
 }
