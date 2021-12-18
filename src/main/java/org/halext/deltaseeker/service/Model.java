@@ -60,7 +60,7 @@ public class Model {
     public void createPriceHistory( String ticker ) throws IOException {
         try {
             client.retrieveKeyFile();
-            parser.parsePriceHistory( client.getPriceHistory( ticker, "ytd", "1", "daily", "1" ) );
+            parser.parsePriceHistory( client.getPriceHistory( ticker, "ytd", "1", "daily", "1", true ) );
             System.out.println("Volatility: " + parser.getVolatility( client.getQuote( ticker )));
 
             loadDataSet();
