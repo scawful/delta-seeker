@@ -1,0 +1,73 @@
+.menu-bar {
+    -fx-background-color: #1A2237 ;
+    -fx-border-width: 2.0;
+}
+.menu-bar .label {
+    -fx-font-size: 12.0 pt;
+    -fx-text-fill: #9DAAD9;
+}
+.menu-bar .menu-button:hover, .menu-bar .menu-button:focused, .menu-bar .menu-button:showing {
+    -fx-background: #1A2237 ;
+    -fx-text-fill: #FFFFFF;
+}
+
+.menu-item {
+    -fx-padding: 2px;
+    -fx-text-fill: black;
+    -fx-background: #1A2237 ;
+}
+.menu-item .label{
+    -fx-font-size: 12.0 pt;
+    -fx-text-fill: #567194;
+}
+.menu-item .label:hover{
+    -fx-font-size: 12.0 pt;
+    -fx-background: black ;
+    -fx-text-fill: #FFFFFF;
+}
+.context-menu {
+    -fx-skin: "javafx.scene.control.skin.ContextMenuSkin";
+    -fx-background-color: #1A2237 ;
+    -fx-border-width: 0.2px;
+    -fx-border-color: black;
+    /** -fx-background-insets: 0.0, 1.0, 2.0;
+    -fx-background-radius: 0.0 6.0 6.0 6.0, 0.0 5.0 5.0 5.0, 0.0 4.0 4.0 4.0;
+    -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em; 
+    -fx-opacity: 0.9;*/
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-opacity: 0;
+}
+
+.tab-pane
+{
+    -fx-tab-min-width:90px;
+}
+
+.tab {
+    -fx-background-insets: 0 1 0 1,0,0;
+}
+.tab-pane .tab
+{
+    -fx-background-color: #192136;
+    -fx-border-width: 1.0;
+    -fx-border-fill: #000;
+}
+
+.tab-pane .tab:selected
+{
+    -fx-background-color: #121726;
+}
+
+.tab .tab-label { 
+    -fx-alignment: CENTER;
+    -fx-text-fill: #828282;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.tab:selected .tab-label { 
+    -fx-alignment: CENTER;
+    -fx-text-fill: #4C5A8E;
+}
