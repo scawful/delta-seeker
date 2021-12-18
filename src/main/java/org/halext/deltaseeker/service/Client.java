@@ -23,26 +23,34 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+/**
+ * Client Class
+ * 
+ * Responsibility: GET data from the TDA API endpoint and pass it off to the Parser class 
+ *                 POST to the TDA API endpoint for authentication 
+ *                 CREATE a WebSocket client using the Stream class and pass messages to the API 
+ */
 public class Client {
 
+    private static final String CONST_TICKER = "{ticker}";
+
     private JSONObject userPrincipals;
+    private String TD_API_KEY;
+    private String TD_REFRESH_TOKEN;
+    private String ACCESS_TOKEN;
 
     public Client() {
-      // TODO document why this constructor is empty
+        TD_API_KEY = "<INSERT-API-KEY>";
+        TD_REFRESH_TOKEN = "<INSERT-REFRESH-TOKEN>";
+        ACCESS_TOKEN = "<RETRIEVE-ACCESS-TOKEN>";
     }
-
-    private static String CONST_TICKER = "{ticker}";
-    private String TD_API_KEY = "<INSERT-API-KEY>";
-    private String TD_REFRESH_TOKEN = "<INSERT-REFRESH-TOKEN>";
-
-    public String AccessToken;
 
     /**
      * Opens local file containing TDA api key and refresh token
      * @throws IOException
      */
     public void retrieveKeyFile() throws IOException {
-        String apiFileLocation = "/Users/scawful/Code/Java/delta-seeker/src/api.txt";
+        String apiFileLocation = "C:/Users/starw/iCloudDrive/Documents/Java/deltaseeker/src/api.txt";
         try ( BufferedReader apiReader = new BufferedReader( new FileReader(apiFileLocation) )) {
             TD_API_KEY = apiReader.readLine();
             TD_REFRESH_TOKEN = apiReader.readLine();
@@ -84,11 +92,8 @@ public class Client {
         Object response = new JSONParser().parse(in);
         JSONObject jo = (JSONObject) response;
           
-        AccessToken = (String) jo.get("access_token");
-        System.out.println(AccessToken);
-
+        ACCESS_TOKEN = (String) jo.get("access_token");
         in.close();
-
     }
 
     /**
@@ -105,7 +110,7 @@ public class Client {
         connection.setRequestMethod("GET");
         connection.setRequestProperty("User-Agent", "Delta Seeker");
         connection.setRequestProperty("Accept-Language", "en-US,en");
-        connection.addRequestProperty("Authorization", "Bearer " + AccessToken);
+        connection.addRequestProperty("Authorization", "Bearer " + ACCESS_TOKEN);
 
         try {
             System.out.println("Response Code: " + connection.getResponseCode() );
@@ -119,6 +124,13 @@ public class Client {
         in.close();
     }
 
+    /**
+     * GET json response from TDA API (no authentication required) 
+     * @param url
+     * @return
+     * @throws IOException
+     * @throws ParseException
+     */
     private JSONObject downloadData( String url ) throws IOException, ParseException {
         URL u = new URL(url);
 
@@ -140,7 +152,40 @@ public class Client {
         return jo;
     }
 
-    public JSONObject getPriceHistory( String ticker, String pType, String p, String fType, String f ) throws IOException, ParseException {
+    /**
+     * GET price history via given parameters where default is marked as asterisk
+     * @param ticker
+     * 
+     * period type
+     * @param pType     day, month, year, or ytd (year to date). 
+     *                  Default is day.
+     * 
+     * period
+     * @param p         day: 1, 2, 3, 4, 5, 10*
+     *                  month: 1*, 2, 3, 6
+     *                  year: 1*, 2, 3, 5, 10, 15, 20
+     *                  ytd: 1*
+     * 
+     * frequency type
+     * @param fType     day: minute*
+     *                  month: daily, weekly*
+     *                  year: daily, weekly, monthly*
+     *                  ytd: daily, weekly*
+     * 
+     * frequency
+     * @param f         minute: 1*, 5, 10, 15, 30
+     *                  daily: 1*
+     *                  weekly: 1*
+     *                  monthly: 1*
+     * 
+     * extended hours
+     * @param ext       true to return extended hours data, false for regular market hours only. Default is true
+     * 
+     * @return JSONObject
+     * @throws IOException
+     * @throws ParseException
+     */
+    public JSONObject getPriceHistory( String ticker, String pType, String p, String fType, String f, Boolean ext ) throws IOException, ParseException {
         // https://api.tdameritrade.com/v1/marketdata/{ticker}/pricehistory?apikey=" + TD_API_KEY  + "&periodType=ytd&period=1&frequencyType=daily&frequency=1&needExtendedHoursData=true
         String baseUrl = "https://api.tdameritrade.com/v1/marketdata/{ticker}/pricehistory?apikey=" + TD_API_KEY;
         String newUrl = baseUrl.replace(CONST_TICKER, ticker);
@@ -157,21 +202,44 @@ public class Client {
         if ( f != null )
             newUrl += "&frequency=" + f;
 
+        if ( !ext )
+            newUrl += "&needExtendedHoursData=false";
+
         return downloadData(newUrl);
     }
 
+    /**
+     * GET price quote 
+     * @param ticker
+     * @return
+     * @throws IOException
+     * @throws ParseException
+     */
     public JSONObject getQuote( String ticker ) throws IOException, ParseException {
         String baseUrl = "https://api.tdameritrade.com/v1/marketdata/TLT/quotes?apikey=" + TD_API_KEY;
         String newUrl = baseUrl.replace(CONST_TICKER, ticker);
         return downloadData(newUrl);
     }
 
+    /**
+     * GET instrument data including fundamentals
+     * @param ticker
+     * @return
+     * @throws IOException
+     * @throws ParseException
+     */
     public JSONObject getInstrument( String ticker ) throws IOException, ParseException { 
         String baseUrl = "https://api.tdameritrade.com/v1/instruments?apikey=" + TD_API_KEY  + "&symbol={ticker}&projection=fundamental";
         String newUrl = baseUrl.replace(CONST_TICKER, ticker);
         return downloadData(newUrl);
     }
 
+    /**
+     * WebSocket session login request for TDA API
+     * 
+     * @return
+     * @throws java.text.ParseException
+     */
     private String createLoginRequest() throws java.text.ParseException {
         HashMap<String, Object> credentials = new HashMap<>();
         HashMap<String, Object> parameters = new HashMap<>();
@@ -232,6 +300,11 @@ public class Client {
         return requestsJSON.toJSONString().replace("\\", "");
     }
 
+    /**
+     * WebSocket session logout request for TDA API
+     * 
+     * @return
+     */
     private String createLogoutRequest() { 
         HashMap<String, Object> requests = new HashMap<>();
 
@@ -252,12 +325,21 @@ public class Client {
         return requestsJSON.toJSONString().replace("\\", "");
     }
 
+    /**
+     * WebSocket stream testing grounds 
+     * 
+     * @throws IOException
+     * @throws ParseException
+     * @throws DeploymentException
+     * @throws java.text.ParseException
+     */
     public void openStream() throws IOException, ParseException, DeploymentException, java.text.ParseException {
         getUserPrincipals();
         try {
             // open websocket
             JSONObject streamerInfo = (JSONObject) userPrincipals.get("streamerInfo");
             final Stream clientEndPoint = new Stream(new URI("wss://" + (String) streamerInfo.get("streamerSocketUrl") + "/ws"));
+
 
             // add listener
             clientEndPoint.addMessageHandler(new Stream.MessageHandler() {
