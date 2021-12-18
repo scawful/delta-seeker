@@ -9,6 +9,7 @@
    <children>
       <Label text="Primary View" />
       <Button fx:id="primaryButton11" layoutX="43.0" layoutY="112.0" onAction="#postAccessToken" text="Post Access Token" />
+      <Button mnemonicParsing="false" onAction="#startStreamingSession" text="Start Streaming Session" />
       <Button mnemonicParsing="false" onAction="#switchToTrainingMode" text="Switch to Training Mode" />
    </children>
    <padding>
