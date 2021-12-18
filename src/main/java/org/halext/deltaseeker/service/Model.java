@@ -5,8 +5,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import org.halext.deltaseeker.service.data.Historical;
-
-
 import org.neuroph.core.NeuralNetwork;
 import org.neuroph.core.data.DataSet;
 import org.neuroph.core.data.DataSetRow;
@@ -16,6 +14,7 @@ import org.neuroph.nnet.learning.BackPropagation;
 
 public class Model {
 
+    // Bounds for normalization
     private static final double LOWER_BOUND = 0.1;
     private static final double UPPER_BOUND = 0.8;
 
@@ -28,10 +27,22 @@ public class Model {
     private Client client;
 
 
+    /**
+     * Normalize price using maxiumum value and bounds for very small or very large values 
+     * @param price
+     * @param max
+     * @return
+     */
     private static double normalizePrice( double price, double max ) {
         return (price / max) * (UPPER_BOUND + LOWER_BOUND);
     }
 
+    /**
+     * Denormalize price from normalizePrice routine 
+     * @param price
+     * @param max
+     * @return
+     */
     private static double denormalizePrice( double price, double max ) {
         return (price * max) / (UPPER_BOUND + LOWER_BOUND);
     }
@@ -58,10 +69,6 @@ public class Model {
         } catch (org.json.simple.parser.ParseException e) {
             e.printStackTrace();
         }
-    }
-
-    public void predictDailyClose( String ticker ) {
-
     }
 
     public void loadDataSet() {

@@ -16,6 +16,11 @@ public class Parser {
 
     }
     
+    /**
+     * Inserts candle data into Historical object 
+     * 
+     * @param jo
+     */
     public void parsePriceHistory( JSONObject jo ) {
         JSONArray candles = (JSONArray) jo.get("candles");
 
@@ -36,7 +41,11 @@ public class Parser {
         Historical.sortCandles();
     }
 
-    // @SuppressWarnings("unchecked")
+    /**
+     * Insert instrument details and fundamental data 
+     * 
+     * @param jo
+     */
     public void parseInstrumentData( JSONObject jo ) {
 
         JSONObject masterObject = (JSONObject) jo.get("TLT");
