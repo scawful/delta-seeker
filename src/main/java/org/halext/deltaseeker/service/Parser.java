@@ -58,6 +58,10 @@ public class Parser {
         }
     }
 
+    public void parseQuoteData( JSONObject jo ) {
+        
+    }
+
     public double getVolatility( JSONObject jo ) {
         JSONObject quote = (JSONObject) jo.get("TLT");        
         return (double) quote.get("volatility");
