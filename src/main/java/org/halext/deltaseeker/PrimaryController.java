@@ -15,6 +15,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 public class PrimaryController {
@@ -22,7 +23,13 @@ public class PrimaryController {
     Client client = new Client();
 
     @FXML TextField tickerInput;
+    @FXML Label modelOutput;
     @FXML LineChart<String, Number> mainChart;
+
+    @FXML
+    public void initialize() {
+        mainChart.lookup(".chart-plot-background").setStyle("-fx-background-color: #30384b;");
+    }
 
     @FXML
     private void switchToTrainingMode() throws IOException {
@@ -41,8 +48,6 @@ public class PrimaryController {
         mainChart.getData().add(series);
         series.getNode().setStyle("-fx-stroke: #405050;");
         
-        mainChart.lookup(".chart-plot-background").setStyle("-fx-background-color: #30384b;");
-
         Platform.runLater(()
                 -> {
 
@@ -58,6 +63,7 @@ public class PrimaryController {
         });
 
         mainChart.axisSortingPolicyProperty();
+        mainChart.setAnimated(false);// disable animation
     }
 
     @FXML
@@ -65,6 +71,7 @@ public class PrimaryController {
         Model pricePredictionModel = new Model();
         pricePredictionModel.createPriceHistory( tickerInput.getText() );
         loadChart( tickerInput.getText() );
+        modelOutput.setText(pricePredictionModel.getDebugOutput());
     }
 
     @FXML

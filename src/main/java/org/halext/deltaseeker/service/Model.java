@@ -26,6 +26,8 @@ public class Model {
     private Parser parser;
     private Client client;
 
+    private String debugModelOutput;
+
 
     /**
      * Normalize price using maxiumum value and bounds for very small or very large values 
@@ -52,6 +54,7 @@ public class Model {
         client = new Client();
         parser = new Parser();
         trainingSet = null;
+        debugModelOutput = "";
     }
     
     public void createPriceHistory( String ticker ) throws IOException {
@@ -109,7 +112,8 @@ public class Model {
 
         double openNormal = normalizePrice(Historical.candles.get(n - 1).getOpen(), Historical.getMaxOpen());
         neuralNet.setInput( openNormal );
-        System.out.println("Open: " + Historical.candles.get(n - 1).getOpen() + " on " + Historical.candles.get(n - 1).getDatetime().toString());
+        // System.out.println("Open: " + Historical.candles.get(n - 1).getOpen() + " on " + Historical.candles.get(n - 1).getDatetime().toString());
+        debugModelOutput += "Open: " + Historical.candles.get(n - 1).getOpen() + " on " + Historical.candles.get(n - 1).getDatetime().toString() + "\n";
 
         // calculate network
         neuralNet.calculate();
@@ -119,17 +123,29 @@ public class Model {
         double denormalizedPrediction = denormalizePrice(networkOutput[0], Historical.getMaxOpen());
         System.out.print("[Close] Predicted: " + BigDecimal.valueOf(denormalizedPrediction).setScale(3, RoundingMode.HALF_UP)
         .doubleValue());
-        System.out.println(" - Actual: " + Historical.candles.get(n-1).getClose());
+        System.out.println(" - Actual: " + Historical.candles.get(n - 1).getClose());
+
+        debugModelOutput += "[Close] Predicted: " + BigDecimal.valueOf(denormalizedPrediction).setScale(3, RoundingMode.HALF_UP)
+        .doubleValue();
+        debugModelOutput += " - Actual: " + Historical.candles.get(n - 1).getClose() + "\n";
 
         denormalizedPrediction = denormalizePrice(networkOutput[1], Historical.getMaxHigh());
         System.out.print("[High] Predicted: " + BigDecimal.valueOf(denormalizedPrediction).setScale(3, RoundingMode.HALF_UP)
         .doubleValue());
         System.out.println(" - Actual: " + Historical.candles.get(n-1).getHigh() );
 
+        debugModelOutput += "[High] Predicted: " + BigDecimal.valueOf(denormalizedPrediction).setScale(3, RoundingMode.HALF_UP)
+        .doubleValue();
+        debugModelOutput += " - Actual: " + Historical.candles.get(n-1).getHigh() + "\n";
+
         denormalizedPrediction = denormalizePrice(networkOutput[2], Historical.getMaxLow());
         System.out.print("[Low] Predicted: " + BigDecimal.valueOf(denormalizedPrediction).setScale(3, RoundingMode.HALF_UP)
         .doubleValue());
         System.out.println(" - Actual: " + Historical.candles.get(n-1).getLow() );
+
+        debugModelOutput += "[Low] Predicted: " + BigDecimal.valueOf(denormalizedPrediction).setScale(3, RoundingMode.HALF_UP)
+        .doubleValue();
+        debugModelOutput += " - Actual: " + Historical.candles.get(n-1).getLow() + "\n";
     }
 
     public void evaluateNetwork() {
@@ -147,5 +163,9 @@ public class Model {
         }
 
         System.out.println("Mean squared error is: " + mse.getTotalError());
+    }
+
+    public String getDebugOutput() {
+        return debugModelOutput;
     }
 }

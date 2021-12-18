@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -14,11 +14,13 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.TextFlow?>
 
 
-<VBox minHeight="720.0" minWidth="1200.0" prefHeight="720.0" prefWidth="1200.0" style="-fx-background-color: #1A2237;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.halext.deltaseeker.PrimaryController">
+<VBox style="-fx-background-color: #1A2237;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.halext.deltaseeker.PrimaryController">
    <children>
-      <MenuBar stylesheets="@darkSky.css">
+      <MenuBar nodeOrientation="LEFT_TO_RIGHT" style="-fx-padding: 2.0;" stylesheets="@darkSky.css">
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
@@ -37,25 +39,25 @@
           </Menu>
         </menus>
       </MenuBar>
-      <HBox prefHeight="525.0" prefWidth="682.0" style="-fx-background-color: #1A2237;">
+      <HBox style="-fx-background-color: #1A2237;">
          <children>
-            <TabPane prefHeight="449.0" prefWidth="271.0" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE">
+            <TabPane prefHeight="520.0" prefWidth="242.0" style="-fx-border-color: #FFF;" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE">
               <tabs>
-                <Tab text="Untitled Tab 1">
+                <Tab text="Watchlist">
                   <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="493.0" prefWidth="227.0" />
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="487.0" prefWidth="280.0" />
                   </content>
                 </Tab>
-                <Tab text="Untitled Tab 2">
+                <Tab text="Portfolio">
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                   </content>
                 </Tab>
               </tabs>
             </TabPane>
-            <VBox>
+            <VBox style="-fx-border-color: #9DAAD9;">
                <children>
-                  <LineChart id="trainingChart" fx:id="mainChart" prefHeight="477.0" prefWidth="765.0" style="-fx-background-color: #1A2237;" verticalGridLinesVisible="false">
+                  <LineChart id="trainingChart" fx:id="mainChart" legendVisible="false" prefHeight="451.0" prefWidth="819.0" style="-fx-background-color: #1A2237;" verticalGridLinesVisible="false">
                      <xAxis>
                         <CategoryAxis side="BOTTOM" tickLabelFill="#999999" tickMarkVisible="false" />
                      </xAxis>
@@ -63,38 +65,53 @@
                         <NumberAxis autoRanging="false" lowerBound="132.0" side="LEFT" tickLabelFill="WHITE" upperBound="157.0" />
                      </yAxis>
                   </LineChart>
-                  <AnchorPane prefHeight="81.0" prefWidth="748.0">
+                  <AnchorPane prefHeight="67.0" prefWidth="819.0" stylesheets="@darkSky.css">
                      <children>
-                        <Button layoutX="669.0" layoutY="19.0" mnemonicParsing="false" onAction="#loadInstrument" text="Load" />
-                        <TextField fx:id="tickerInput" layoutX="507.0" layoutY="19.0" />
+                        <Button layoutX="205.0" layoutY="19.0" mnemonicParsing="false" onAction="#loadInstrument" text="Load" textFill="WHITE" />
+                        <TextField fx:id="tickerInput" layoutX="46.0" layoutY="19.0" />
+                        <Button fx:id="primaryButton11" layoutX="307.0" layoutY="19.0" onAction="#postAccessToken" stylesheets="@darkSky.css" text="Post Access Token" textFill="WHITE" />
+                        <Button layoutX="452.0" layoutY="19.0" mnemonicParsing="false" onAction="#startStreamingSession" text="Start Streaming Session" textFill="WHITE" />
+                        <Button layoutX="638.0" layoutY="19.0" mnemonicParsing="false" onAction="#switchToTrainingMode" text="Switch to Training Mode" textFill="WHITE" />
                      </children>
                   </AnchorPane>
                </children>
             </VBox>
-            <VBox alignment="CENTER" prefHeight="344.0" prefWidth="216.0" spacing="20.0">
-               <children>
-                  <Button fx:id="primaryButton11" layoutX="43.0" layoutY="112.0" onAction="#postAccessToken" text="Post Access Token" />
-                  <Button mnemonicParsing="false" onAction="#startStreamingSession" text="Start Streaming Session" />
-                  <Button mnemonicParsing="false" onAction="#switchToTrainingMode" text="Switch to Training Mode" />
-               </children>
-               <padding>
-                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-               </padding>
-            </VBox>
          </children>
       </HBox>
-      <TabPane prefHeight="176.0" prefWidth="1200.0" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE">
+      <TabPane style="-fx-border-color: #9DAAD9;" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE">
         <tabs>
-          <Tab text="Untitled Tab 1">
+            <Tab text="Models">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <TextFlow layoutX="14.0" layoutY="10.0" prefHeight="161.0" prefWidth="434.0">
+                           <children>
+                              <Label fx:id="modelOutput" prefHeight="158.0" prefWidth="431.0" textFill="WHITE">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </TextFlow>
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
+          <Tab text="Orders">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
             </content>
           </Tab>
-          <Tab text="Untitled Tab 2">
+          <Tab text="Positions">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
             </content>
           </Tab>
+            <Tab text="Performance">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              </content>
+            </Tab>
         </tabs>
       </TabPane>
    </children>
