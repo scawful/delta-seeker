@@ -37,7 +37,8 @@ public class Parser {
     }
 
     // @SuppressWarnings("unchecked")
-    public void parseFundamentalData( JSONObject jo ) {
+    public void parseInstrumentData( JSONObject jo ) {
+
         JSONObject masterObject = (JSONObject) jo.get("TLT");
         JSONObject fundamentalObject = (JSONObject) masterObject.get("fundamental");
 

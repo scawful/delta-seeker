@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import org.halext.deltaseeker.service.data.Historical;
+
+
 import org.neuroph.core.NeuralNetwork;
 import org.neuroph.core.data.DataSet;
 import org.neuroph.core.data.DataSetRow;
@@ -16,10 +18,15 @@ public class Model {
 
     private static final double LOWER_BOUND = 0.1;
     private static final double UPPER_BOUND = 0.8;
-    private Parser parser;
-    private Client client;
+
+    // NeuralNetwork components 
     private NeuralNetwork<BackPropagation> neuralNet;
     private DataSet trainingSet;
+
+    // API Objects 
+    private Parser parser;
+    private Client client;
+
 
     private static double normalizePrice( double price, double max ) {
         return (price / max) * (UPPER_BOUND + LOWER_BOUND);
@@ -47,7 +54,7 @@ public class Model {
             loadNetwork();
             evaluateNetwork();
             
-            parser.parseFundamentalData( client.getInstrument(ticker) );
+            parser.parseInstrumentData( client.getInstrument(ticker) );
         } catch (org.json.simple.parser.ParseException e) {
             e.printStackTrace();
         }
@@ -87,6 +94,7 @@ public class Model {
         neuralNet.save("or_perceptron.nnet");
     }
 
+    @SuppressWarnings("unchecked")
     public void loadNetwork() {
         // load the saved network
         int n = parser.getNumCandles();
