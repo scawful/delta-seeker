@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
@@ -21,9 +22,10 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+
 <VBox style="-fx-background-color: #1A2237;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.halext.deltaseeker.PrimaryController">
    <children>
-      <MenuBar nodeOrientation="LEFT_TO_RIGHT" style="-fx-padding: 2.0;" stylesheets="@darkSky.css">
+      <MenuBar fx:id="menuBar" nodeOrientation="LEFT_TO_RIGHT" style="-fx-padding: 2.0;" stylesheets="@darkSky.css">
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
@@ -51,15 +53,15 @@
       </MenuBar>
       <HBox style="-fx-background-color: #1A2237;">
          <children>
-            <TabPane prefHeight="520.0" prefWidth="242.0" style="-fx-border-color: #FFF;" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE">
+            <TabPane prefHeight="520.0" prefWidth="279.0" style="-fx-border-color: #9DAAD9 #9DAAD9;" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE">
               <tabs>
                 <Tab text="Watchlist">
                   <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="487.0" prefWidth="280.0">
+                    <AnchorPane minHeight="0.0" minWidth="0.0">
                            <children>
-                              <TableView fx:id="watchlistTable" layoutX="20.0" layoutY="29.0" prefHeight="460.0" prefWidth="240.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="29.0" />
-                              <ListView fx:id="watchlistsView" disable="true" layoutX="20.0" layoutY="14.0" prefHeight="489.0" prefWidth="240.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ComboBox fx:id="watchlistComboBox" layoutX="4.0" layoutY="1.0" prefHeight="28.0" prefWidth="240.0" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="461.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <TableView fx:id="watchlistTable" layoutX="20.0" layoutY="29.0" prefWidth="240.0" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="29.0" />
+                              <ListView fx:id="watchlistsView" disable="true" layoutX="20.0" layoutY="14.0" prefWidth="240.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ComboBox fx:id="watchlistComboBox" layoutX="4.0" layoutY="1.0" prefHeight="30.0" prefWidth="277.0" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="447.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                            </children>
                         </AnchorPane>
                   </content>
@@ -71,7 +73,7 @@
                 </Tab>
               </tabs>
             </TabPane>
-            <VBox style="-fx-border-color: #9DAAD9;">
+            <VBox snapToPixel="false" style="-fx-border-color: #9DAAD9;">
                <children>
                   <LineChart id="trainingChart" fx:id="mainChart" legendVisible="false" prefHeight="451.0" prefWidth="819.0" style="-fx-background-color: #1A2237;" stylesheets="@darkSky.css" verticalGridLinesVisible="false">
                      <xAxis>
@@ -83,41 +85,59 @@
                   </LineChart>
                   <AnchorPane prefHeight="83.0" prefWidth="819.0">
                      <children>
-                        <Button layoutX="662.0" layoutY="43.0" mnemonicParsing="false" onAction="#loadInstrument" stylesheets="@darkSky.css" text="Search" textFill="WHITE">
+                        <Button layoutX="627.0" layoutY="40.0" mnemonicParsing="false" onAction="#loadInstrument" stylesheets="@darkSky.css" text="Search" textFill="WHITE" AnchorPane.bottomAnchor="12.0">
                            <font>
                               <Font size="10.0" />
-                           </font></Button>
-                        <TextField fx:id="tickerInput" layoutX="556.0" layoutY="45.0" prefHeight="25.0" prefWidth="94.0" stylesheets="@darkSky.css" />
-                        <ComboBox layoutX="78.0" layoutY="4.0" prefHeight="25.0" prefWidth="126.0" promptText="Time Interval" stylesheets="@darkSky.css" />
-                        <ComboBox layoutX="78.0" layoutY="46.0" prefHeight="25.0" prefWidth="126.0" promptText="Time Units" stylesheets="@darkSky.css" />
-                        <ComboBox layoutX="217.0" layoutY="46.0" prefHeight="25.0" prefWidth="144.0" promptText="Frequency Units" stylesheets="@darkSky.css" />
-                        <ComboBox layoutX="217.0" layoutY="4.0" prefHeight="25.0" prefWidth="144.0" promptText="Frequency Interval" stylesheets="@darkSky.css" />
-                        <DatePicker layoutX="372.0" layoutY="5.0" promptText="Start Date" stylesheets="@darkSky.css" />
-                        <DatePicker layoutX="372.0" layoutY="45.0" promptText="End Date" stylesheets="@darkSky.css" />
-                        <CheckBox layoutX="556.0" layoutY="9.0" mnemonicParsing="false" text="Extended Hours Data" textFill="WHITE" />
+                           </font>
+                        </Button>
+                        <TextField fx:id="tickerInput" layoutX="521.0" layoutY="45.0" prefHeight="25.0" prefWidth="94.0" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="12.0" />
+                        <ComboBox layoutX="18.0" layoutY="6.0" prefHeight="25.0" prefWidth="126.0" promptText="Time Interval" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="49.0" />
+                        <ComboBox layoutX="18.0" layoutY="43.0" prefHeight="25.0" prefWidth="126.0" promptText="Time Units" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="12.0" />
+                        <ComboBox layoutX="157.0" layoutY="43.0" prefHeight="25.0" prefWidth="156.0" promptText="Frequency Units" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="12.0" />
+                        <ComboBox layoutX="157.0" layoutY="6.0" prefHeight="28.0" prefWidth="156.0" promptText="Frequency Interval" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="49.0" />
+                        <DatePicker layoutX="328.0" layoutY="8.0" promptText="Start Date" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="49.0" />
+                        <DatePicker layoutX="328.0" layoutY="45.0" promptText="End Date" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="12.0" />
+                        <CheckBox layoutX="522.0" layoutY="6.0" mnemonicParsing="false" text="Extended Hours Data" textFill="WHITE" />
+                        <TextField fx:id="movingAveragePeriod" layoutX="695.0" layoutY="5.0" prefHeight="26.0" prefWidth="110.0" promptText="Moving Average" />
+                        <Button layoutX="723.0" layoutY="43.0" mnemonicParsing="false" onAction="#loadMovingAverage" text="Load" />
                      </children>
                   </AnchorPane>
                </children>
             </VBox>
          </children>
       </HBox>
-      <TabPane style="-fx-border-color: #9DAAD9;" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE">
+      <TabPane prefHeight="239.0" style="-fx-border-color: #9DAAD9;" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE">
         <tabs>
             <Tab text="Models">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <Label fx:id="modelOutput" layoutX="101.0" layoutY="9.0" prefHeight="163.0" prefWidth="577.0" style="-fx-background-color: #253151;" textFill="WHITE">
+                        <Label fx:id="modelOutput" layoutX="306.0" layoutY="8.0" prefHeight="163.0" prefWidth="400.0" style="-fx-background-color: #253151;" textFill="WHITE">
                            <font>
                               <Font size="14.0" />
                            </font>
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" top="5.0" />
+                           </padding>
                         </Label>
-                        <TextField fx:id="maxIterationsInput" layoutX="14.0" layoutY="33.0" prefHeight="25.0" prefWidth="75.0" text="1000" />
-                        <Label layoutX="14.0" layoutY="14.0" text="Max Iterations" textFill="WHITE" />
-                        <Label layoutX="16.0" layoutY="69.0" text="Max Error" textFill="WHITE" />
-                        <TextField fx:id="maxErrorInput" layoutX="15.0" layoutY="86.0" prefHeight="25.0" prefWidth="74.0" text="0.001" />
-                        <Label layoutX="16.0" layoutY="117.0" text="Learning Rate" textFill="WHITE" />
-                        <TextField fx:id="learningRateInput" layoutX="14.0" layoutY="134.0" prefHeight="25.0" prefWidth="74.0" text="0.7" />
+                        <TextField fx:id="maxIterationsInput" layoutX="14.0" layoutY="33.0" prefHeight="26.0" prefWidth="86.0" text="1000" AnchorPane.leftAnchor="14.0" />
+                        <Label layoutX="14.0" layoutY="14.0" text="Max Iterations" textFill="WHITE" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0" />
+                        <Label layoutX="16.0" layoutY="69.0" text="Max Error" textFill="WHITE" AnchorPane.leftAnchor="14.0" />
+                        <TextField fx:id="maxErrorInput" layoutX="15.0" layoutY="86.0" prefHeight="26.0" prefWidth="86.0" text="0.001" AnchorPane.leftAnchor="14.0" />
+                        <Label layoutX="16.0" layoutY="117.0" text="Learning Rate" textFill="WHITE" AnchorPane.leftAnchor="14.0" />
+                        <TextField fx:id="learningRateInput" layoutX="14.0" layoutY="134.0" prefHeight="26.0" prefWidth="85.0" text="0.7" AnchorPane.leftAnchor="14.0" />
+                        <CheckBox fx:id="inputOpen" layoutX="120.0" layoutY="32.0" mnemonicParsing="false" selected="true" text="Open" textFill="WHITE" AnchorPane.leftAnchor="120.0" />
+                        <Label layoutX="120.0" layoutY="14.0" text="Inputs" textFill="WHITE" AnchorPane.topAnchor="14.0" />
+                        <CheckBox fx:id="inputClose" layoutX="120.0" layoutY="59.0" mnemonicParsing="false" text="Close" textFill="WHITE" AnchorPane.leftAnchor="120.0" />
+                        <CheckBox fx:id="inputHigh" layoutX="120.0" layoutY="86.0" mnemonicParsing="false" text="High" textFill="WHITE" AnchorPane.leftAnchor="120.0" />
+                        <CheckBox fx:id="inputLow" layoutX="120.0" layoutY="113.0" mnemonicParsing="false" text="Low" textFill="WHITE" AnchorPane.leftAnchor="120.0" />
+                        <CheckBox fx:id="outputOpen" layoutX="203.0" layoutY="34.0" mnemonicParsing="false" text="Open" textFill="WHITE" AnchorPane.leftAnchor="203.0" />
+                        <Label layoutX="203.0" layoutY="16.0" text="Outputs" textFill="WHITE" AnchorPane.leftAnchor="203.0" AnchorPane.topAnchor="14.0" />
+                        <CheckBox fx:id="outputClose" layoutX="203.0" layoutY="60.0" mnemonicParsing="false" selected="true" text="Close" textFill="WHITE" AnchorPane.leftAnchor="203.0" />
+                        <CheckBox fx:id="outputHigh" layoutX="203.0" layoutY="88.0" mnemonicParsing="false" selected="true" text="High" textFill="WHITE" AnchorPane.leftAnchor="203.0" />
+                        <CheckBox fx:id="outputLow" layoutX="203.0" layoutY="115.0" mnemonicParsing="false" selected="true" text="Low" textFill="WHITE" AnchorPane.leftAnchor="203.0" />
+                        <CheckBox fx:id="inputVolume" layoutX="120.0" layoutY="142.0" mnemonicParsing="false" text="Volume" textFill="WHITE" AnchorPane.leftAnchor="120.0" />
+                        <CheckBox fx:id="outputVolume" layoutX="203.0" layoutY="142.0" mnemonicParsing="false" text="Volume" textFill="WHITE" AnchorPane.leftAnchor="203.0" />
                      </children>
                   </AnchorPane>
               </content>
