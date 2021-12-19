@@ -13,6 +13,7 @@ public class Historical {
     static double maxLow;
     static double maxHigh;
     static double meanClose;
+    static double minLow = Double.POSITIVE_INFINITY;
 
     public static class Candle {
         long volume;
@@ -67,7 +68,6 @@ public class Historical {
 
 
     private Historical() {
-
     }
 
     public static List<Candle> candles;
@@ -87,6 +87,9 @@ public class Historical {
 
         if ( l > maxLow )
             maxLow = l;
+
+        if ( l < minLow ) 
+            minLow = l;
 
         meanClose += c;
 
@@ -112,6 +115,10 @@ public class Historical {
 
     public static double getMeanClose() {
         return meanClose / candles.size();
+    }
+
+    public static double getMinLow() {
+        return minLow;
     }
 
     public static void sortCandles() {

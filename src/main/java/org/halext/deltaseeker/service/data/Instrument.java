@@ -36,4 +36,8 @@ public class Instrument {
         fundamentalData.put(key, object);
     }
 
+    public static Object getFundamental(String key) {
+        return fundamentalData.get(key);
+    }
+
 }
