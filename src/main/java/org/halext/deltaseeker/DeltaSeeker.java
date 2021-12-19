@@ -19,6 +19,7 @@ public class DeltaSeeker extends Application {
     public void start(Stage stage) throws IOException {
         scene = new Scene(loadFXML("primary"), 1063, 760);
         stage.setScene(scene);
+        stage.setTitle("Delta Seeker");
         stage.show();
     }
 
