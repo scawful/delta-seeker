@@ -40,3 +40,11 @@ target/classes/org/halext/deltaseeker/service/data/Historical$SortCandle.class
 target/maven-archiver/pom.properties
 target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
 target/deltaseeker-1.0-BETA.jar
+target/classes/org/halext/deltaseeker/darkSky.css
+target/classes/org/halext/deltaseeker/service/Client$1.class
+target/classes/org/halext/deltaseeker/service/Stream.class
+target/classes/org/halext/deltaseeker/service/Stream$MessageHandler.class
+target/classes/org/halext/deltaseeker/service/data/Instrument.class
+target/classes/org/halext/deltaseeker/service/data/Quote.class
+target/classes/org/halext/deltaseeker/service/data/Watchlist.class
+src/main/resources/org/halext/deltaseeker/primary.fxml
