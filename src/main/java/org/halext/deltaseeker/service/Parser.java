@@ -3,12 +3,15 @@ package org.halext.deltaseeker.service;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
-import org.halext.deltaseeker.service.data.Historical;
 import org.halext.deltaseeker.service.data.Quote;
+import org.halext.deltaseeker.service.data.Historical;
 import org.halext.deltaseeker.service.data.Instrument;
+import org.halext.deltaseeker.service.data.Watchlist;
 
 public class Parser {
 
@@ -46,9 +49,9 @@ public class Parser {
      * 
      * @param jo
      */
-    public void parseInstrumentData( JSONObject jo ) {
+    public void parseInstrumentData( JSONObject jo, String ticker ) {
 
-        JSONObject masterObject = (JSONObject) jo.get("TLT");
+        JSONObject masterObject = (JSONObject) jo.get(ticker);
         JSONObject fundamentalObject = (JSONObject) masterObject.get("fundamental");
 
         Instrument.setSymbol((String) fundamentalObject.remove("symbol"));
@@ -62,8 +65,28 @@ public class Parser {
         
     }
 
-    public double getVolatility( JSONObject jo ) {
-        JSONObject quote = (JSONObject) jo.get("TLT");        
+    public ArrayList<Watchlist> parseWatchlistData( JSONArray jo ) {
+        ArrayList<Watchlist> watchlists = new ArrayList<Watchlist>();
+
+        for ( int i = 0; i < jo.size(); i++ ) {
+            JSONObject wrapper = (JSONObject) jo.get(i);
+            Watchlist watchlist = new Watchlist((String)wrapper.get("name"), (String)wrapper.get("watchlistId"));
+
+            JSONArray items = (JSONArray) wrapper.get("watchlistItems");
+            for ( int j = 0; j < items.size(); j++ ) {
+                JSONObject eachInstrument = (JSONObject) items.get(j);
+                watchlist.addItem("sequenceId", eachInstrument.get("sequenceId"));
+                JSONObject instrumentInformation = (JSONObject) eachInstrument.get("instrument");
+                watchlist.addSymbol((String) instrumentInformation.get("symbol"));
+                watchlist.addItem("assetType", instrumentInformation.get("assetType"));
+            }
+            watchlists.add(watchlist);
+        } 
+        return watchlists;
+    }
+
+    public double getVolatility( JSONObject jo, String ticker ) {
+        JSONObject quote = (JSONObject) jo.get(ticker);        
         return (double) quote.get("volatility");
     }
 
