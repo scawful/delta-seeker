@@ -1,7 +1,6 @@
 package org.halext.deltaseeker;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,13 +25,16 @@ import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 
 public class PrimaryController {
 
@@ -51,9 +53,60 @@ public class PrimaryController {
     @FXML TextField maxIterationsInput;
     @FXML TextField maxErrorInput;
     @FXML TextField learningRateInput;
+    @FXML TextField movingAveragePeriod;
+    @FXML MenuBar menuBar;
 
-    @FXML public void handleMouseClick(MouseEvent arg0) {
-        System.out.println("clicked on " + watchlistComboBox.getSelectionModel().getSelectedItem());
+    @FXML CheckBox inputOpen;
+    @FXML CheckBox inputClose;
+    @FXML CheckBox inputHigh;
+    @FXML CheckBox inputLow;
+    @FXML CheckBox inputVolume;
+
+    @FXML CheckBox outputOpen;
+    @FXML CheckBox outputClose;
+    @FXML CheckBox outputHigh;
+    @FXML CheckBox outputLow;
+    @FXML CheckBox outputVolume;
+    
+
+    private int[] buildInputParameters() {
+        ArrayList<Integer> inputs = new ArrayList<>();
+        if ( inputOpen.isSelected() )
+            inputs.add(0);
+
+        if ( inputClose.isSelected() )
+            inputs.add(1);
+
+        if ( inputHigh.isSelected() )
+            inputs.add(2);
+
+        if ( inputLow.isSelected() )
+            inputs.add(3);
+
+        if ( inputVolume.isSelected() ) 
+            inputs.add(4);
+        
+        return inputs.stream().mapToInt(i -> i).toArray();
+    }
+
+    private int[] buildOutputParameters() {
+        ArrayList<Integer> outputs = new ArrayList<>();
+        if ( outputOpen.isSelected() )
+            outputs.add(0);
+
+        if ( outputClose.isSelected() )
+            outputs.add(1);
+
+        if ( outputHigh.isSelected() )
+            outputs.add(2);
+
+        if ( outputLow.isSelected() )
+            outputs.add(3);
+
+        if ( outputVolume.isSelected() ) 
+            outputs.add(4);
+        
+        return outputs.stream().mapToInt(i -> i).toArray();
     }
 
     @FXML
@@ -80,6 +133,7 @@ public class PrimaryController {
     }
 
     @FXML
+    @SuppressWarnings("unchecked")
     public void buildWatchlist(int position) {
         TableColumn<Symbol, String> symbolColumn = new TableColumn<>("Symbol");
         TableColumn<Symbol, String> typeColumn = new TableColumn<>("Type");
@@ -115,6 +169,7 @@ public class PrimaryController {
             Model pricePredictionModel = new Model();
             try {
                 pricePredictionModel.createPriceHistory( symbol.getSymbol() );
+                pricePredictionModel.loadDataSet(buildInputParameters(), buildOutputParameters(), 0);
                 pricePredictionModel.trainNetwork(Integer.parseInt(maxIterationsInput.getText()), 
                                                   Double.parseDouble(maxErrorInput.getText()),  
                                                   Double.parseDouble(learningRateInput.getText()));
@@ -131,8 +186,10 @@ public class PrimaryController {
     @FXML
     public void loadChart( String ticker ) {
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        priceAxis.setLowerBound(Historical.getMinLow());
-        priceAxis.setUpperBound(Historical.getMaxHigh());
+        Double minLow = Historical.getMinLow();
+        Double maxHigh = Historical.getMaxHigh();
+        priceAxis.setLowerBound(minLow.intValue() - 1);
+        priceAxis.setUpperBound(maxHigh.intValue() + 1);
         series.setName(ticker);
         for ( int i = 0; i < Historical.candles.size(); i++ )
         {
@@ -159,9 +216,59 @@ public class PrimaryController {
         mainChart.axisSortingPolicyProperty();
         mainChart.setAnimated(false);// disable animation
     }
+    
+    @FXML
+    public void loadMovingAverage() {
+        int period = Integer.parseInt(movingAveragePeriod.getText());
+        int minPeriod = 0;
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+
+        int n = Historical.candles.size();
+        for ( int i = 0; i < n; i++ )
+        {
+            double periodSum = 0;
+            String shortDate = Historical.candles.get(i).getDatetime().toString().substring(4,10);
+
+            if ( i < period ) {
+                minPeriod++;
+            } else {
+                minPeriod = period;
+            }
+
+            for ( int j = 0; j < minPeriod; j++ ) {
+                periodSum += Historical.candles.get(i - j).getOpen();
+            }
+            periodSum /= minPeriod;
+
+            series.getData().add(new XYChart.Data<>(shortDate, periodSum));
+        }
+        mainChart.getData().add(series);
+
+        Node line = series.getNode().lookup(".chart-series-line");
+
+        Color color = Color.RED; // or any other color
+
+        String rgb = String.format("%d, %d, %d",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255));
+
+        line.setStyle("-fx-stroke: rgba(" + rgb + ", 1.0);");
+
+        Platform.runLater(()
+                -> {
+            Set<Node> nodes = mainChart.lookupAll(".series" + 1);
+            for (Node nma : nodes) {
+                nma.setStyle("-fx-background-color: transparent;\n"
+                        + "    -fx-background-radius: 1px;\n"
+                        + "    -fx-padding: 1px;");
+            }
+        });
+
+    }
 
     @FXML
-    public void loadEquityCurveCSV() throws FileNotFoundException, IOException {
+    public void loadEquityCurveCSV() throws IOException {
         XYChart.Series<String, Number> series = new XYChart.Series<>();
 
         HashMap<String, String> balances = new HashMap<>();
@@ -175,7 +282,7 @@ public class PrimaryController {
                 System.out.println(line);
                 String[] values = line.split(COMMA_DELIMITER);
 
-                if (first) {
+                if (Boolean.TRUE.equals(first)) {
                     values[0] = values[0].substring(3, values[0].length());
                     first = false;
                 }
@@ -226,6 +333,7 @@ public class PrimaryController {
     private void loadInstrument() throws IOException, ParseException {
         Model pricePredictionModel = new Model();
         pricePredictionModel.createPriceHistory( tickerInput.getText() );
+        pricePredictionModel.loadDataSet(buildInputParameters(), buildOutputParameters(), 0);
         pricePredictionModel.trainNetwork(Integer.parseInt(maxIterationsInput.getText()), 
                                           Double.parseDouble(maxErrorInput.getText()),  
                                           Double.parseDouble(learningRateInput.getText()));
