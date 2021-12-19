@@ -1,7 +1,11 @@
 package org.halext.deltaseeker;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 
 import javax.websocket.DeploymentException;
@@ -32,6 +36,7 @@ import javafx.scene.input.MouseEvent;
 
 public class PrimaryController {
 
+    private static final String COMMA_DELIMITER = ",";
     Client client = new Client();
     Parser parser = new Parser();
 
@@ -43,6 +48,9 @@ public class PrimaryController {
     @FXML LineChart<String, Number> mainChart;
     @FXML TableView<Symbol> watchlistTable;
     @FXML ComboBox<String> watchlistComboBox;
+    @FXML TextField maxIterationsInput;
+    @FXML TextField maxErrorInput;
+    @FXML TextField learningRateInput;
 
     @FXML public void handleMouseClick(MouseEvent arg0) {
         System.out.println("clicked on " + watchlistComboBox.getSelectionModel().getSelectedItem());
@@ -89,20 +97,29 @@ public class PrimaryController {
         
         watchlistTable.setOnMouseClicked((MouseEvent event) -> {
             if (event.getClickCount() > 1) {
-                selectItem();
+                try {
+                    selectItem();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         });
         
     }
 
     @FXML
-    public void selectItem() {
+    public void selectItem() throws ParseException {
         // check the table's selected item and get selected item
         if (watchlistTable.getSelectionModel().getSelectedItem() != null) {
             Symbol symbol = watchlistTable.getSelectionModel().getSelectedItem();
             Model pricePredictionModel = new Model();
             try {
                 pricePredictionModel.createPriceHistory( symbol.getSymbol() );
+                pricePredictionModel.trainNetwork(Integer.parseInt(maxIterationsInput.getText()), 
+                                                  Double.parseDouble(maxErrorInput.getText()),  
+                                                  Double.parseDouble(learningRateInput.getText()));
+                pricePredictionModel.loadNetwork();
+                pricePredictionModel.evaluateNetwork();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -144,9 +161,76 @@ public class PrimaryController {
     }
 
     @FXML
-    private void loadInstrument() throws IOException {
+    public void loadEquityCurveCSV() throws FileNotFoundException, IOException {
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+
+        HashMap<String, String> balances = new HashMap<>();
+
+        Double minimumBalance = Double.POSITIVE_INFINITY;
+        Double maximumBalance = Double.NEGATIVE_INFINITY;
+        try (BufferedReader br = new BufferedReader(new FileReader("chart.csv"))) {
+            Boolean first = true;
+            String line;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+                String[] values = line.split(COMMA_DELIMITER);
+
+                if (first) {
+                    values[0] = values[0].substring(3, values[0].length());
+                    first = false;
+                }
+                
+                balances.put(values[0], values[1]);
+                Double balance = Double.parseDouble(values[1]);
+
+                if ( balance > maximumBalance ) {
+                    maximumBalance = balance;
+                }
+
+                if ( balance < minimumBalance ) {
+                    minimumBalance = balance;
+                }
+
+                System.out.println(balance);
+                series.getData().add(new XYChart.Data<>(values[0], balance));
+            }
+        }
+        priceAxis.setLowerBound(minimumBalance.intValue() - 100);
+        priceAxis.setUpperBound(maximumBalance.intValue() + 100);
+
+        series.setName("Equity Curve");
+        
+        mainChart.getData().add(series);
+        //series.getNode().setStyle("-fx-stroke: #405050;");
+        
+        Platform.runLater(()
+                -> {
+
+            Set<Node> nodes = mainChart.lookupAll(".series" + 0);
+            for (Node n : nodes) {
+                n.setStyle("-fx-background-color: #405050;\n"
+                        + "    -fx-background-insets: 0, 2;\n"
+                        + "    -fx-background-radius: 5px;\n"
+                        + "    -fx-padding: 1px;");
+            }
+
+            series.getNode().lookup(".chart-series-line").setStyle("-fx-stroke: black;");
+        });
+
+        mainChart.axisSortingPolicyProperty();
+        mainChart.setAnimated(false);// disable animation
+    }
+
+
+    @FXML
+    private void loadInstrument() throws IOException, ParseException {
         Model pricePredictionModel = new Model();
         pricePredictionModel.createPriceHistory( tickerInput.getText() );
+        pricePredictionModel.trainNetwork(Integer.parseInt(maxIterationsInput.getText()), 
+                                          Double.parseDouble(maxErrorInput.getText()),  
+                                          Double.parseDouble(learningRateInput.getText()));
+        pricePredictionModel.loadNetwork();
+        pricePredictionModel.evaluateNetwork();
         loadChart( tickerInput.getText() );
         modelOutput.setText(pricePredictionModel.getDebugOutput());
     }

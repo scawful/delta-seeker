@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import org.halext.deltaseeker.service.data.Historical;
+import org.json.simple.parser.ParseException;
 import org.neuroph.core.NeuralNetwork;
 import org.neuroph.core.data.DataSet;
 import org.neuroph.core.data.DataSetRow;
@@ -26,6 +27,7 @@ public class Model {
     private Parser parser;
     private Client client;
 
+    private String ticker;
     private String debugModelOutput;
 
     /**
@@ -58,17 +60,13 @@ public class Model {
     
     public void createPriceHistory( String ticker ) throws IOException {
         try {
+            this.ticker = ticker;
             client.retrieveKeyFile();
             parser.parsePriceHistory( client.getPriceHistory( ticker, "ytd", "1", "daily", "1", true ) );
             parser.parseInstrumentData( client.getInstrument(ticker), ticker );
             debugModelOutput += "Data Set: YTD DAILY\n";
 
             loadDataSet();
-            trainNetwork();
-            loadNetwork();
-            debugModelOutput += "Volatility: " + parser.getVolatility( client.getQuote( ticker ), ticker ) + "\n";
-            evaluateNetwork();
-            
         } catch (org.json.simple.parser.ParseException e) {
             e.printStackTrace();
         }
@@ -90,7 +88,7 @@ public class Model {
 
     }
 
-    public void trainNetwork() {
+    public void trainNetwork(int maxIterations, double maxError, double learningRate) {
         neuralNet = new MultiLayerPerceptron(1, 9, 3);      
 
         // learn the training set
@@ -105,7 +103,7 @@ public class Model {
     }
 
     @SuppressWarnings("unchecked")
-    public void loadNetwork() {
+    public void loadNetwork() throws IOException, ParseException {
         // load the saved network
         int n = parser.getNumCandles();
         neuralNet = MultiLayerPerceptron.createFromFile("or_perceptron.nnet");
@@ -139,6 +137,8 @@ public class Model {
         denormalizedPrediction = denormalizePrice(networkOutput[2], Historical.getMaxLow());
         debugModelOutput += "[Low] Predicted: " + BigDecimal.valueOf(denormalizedPrediction).setScale(3, RoundingMode.HALF_UP).doubleValue();
         debugModelOutput += " - Actual: " + Historical.candles.get(n-1).getLow() + "\n";
+
+        debugModelOutput += "Volatility: " + parser.getVolatility( client.getQuote( ticker ), ticker ) + "\n";
     }
 
     public void evaluateNetwork() {
