@@ -13,4 +13,7 @@ module org.halext.deltaseeker {
     opens org.halext.deltaseeker.service to json.simple;
     exports org.halext.deltaseeker.service;
 
+    opens org.halext.deltaseeker.service.data to javafx.base;
+    exports org.halext.deltaseeker.service.data;
+
 }
