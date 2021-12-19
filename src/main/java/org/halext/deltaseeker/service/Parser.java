@@ -6,7 +6,6 @@ import org.json.simple.JSONArray;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 
 import org.halext.deltaseeker.service.data.Quote;
 import org.halext.deltaseeker.service.data.Historical;

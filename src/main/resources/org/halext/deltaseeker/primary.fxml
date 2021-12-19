@@ -4,19 +4,22 @@
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.text.TextFlow?>
-
 
 <VBox style="-fx-background-color: #1A2237;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.halext.deltaseeker.PrimaryController">
    <children>
@@ -32,6 +35,13 @@
               <MenuItem mnemonicParsing="false" text="Delete" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="Debug">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#postAccessToken" text="Post Access Token" />
+                  <MenuItem mnemonicParsing="false" onAction="#startStreamingSession" text="Start Streaming Session" />
+                  <MenuItem mnemonicParsing="false" onAction="#loadEquityCurveCSV" text="Portfolio Balance" />
+              </items>
+            </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
               <MenuItem mnemonicParsing="false" text="About" />
@@ -45,10 +55,16 @@
               <tabs>
                 <Tab text="Watchlist">
                   <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="487.0" prefWidth="280.0" />
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="487.0" prefWidth="280.0">
+                           <children>
+                              <TableView fx:id="watchlistTable" layoutX="20.0" layoutY="29.0" prefHeight="460.0" prefWidth="240.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="29.0" />
+                              <ListView fx:id="watchlistsView" disable="true" layoutX="20.0" layoutY="14.0" prefHeight="489.0" prefWidth="240.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <ComboBox fx:id="watchlistComboBox" layoutX="4.0" layoutY="1.0" prefHeight="28.0" prefWidth="240.0" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="461.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                           </children>
+                        </AnchorPane>
                   </content>
                 </Tab>
-                <Tab text="Portfolio">
+                <Tab text="Movers">
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                   </content>
@@ -57,21 +73,28 @@
             </TabPane>
             <VBox style="-fx-border-color: #9DAAD9;">
                <children>
-                  <LineChart id="trainingChart" fx:id="mainChart" legendVisible="false" prefHeight="451.0" prefWidth="819.0" style="-fx-background-color: #1A2237;" verticalGridLinesVisible="false">
+                  <LineChart id="trainingChart" fx:id="mainChart" legendVisible="false" prefHeight="451.0" prefWidth="819.0" style="-fx-background-color: #1A2237;" stylesheets="@darkSky.css" verticalGridLinesVisible="false">
                      <xAxis>
                         <CategoryAxis side="BOTTOM" tickLabelFill="#999999" tickMarkVisible="false" />
                      </xAxis>
                      <yAxis>
-                        <NumberAxis autoRanging="false" lowerBound="132.0" side="LEFT" tickLabelFill="WHITE" upperBound="157.0" />
+                        <NumberAxis fx:id="priceAxis" autoRanging="false" lowerBound="132.0" side="LEFT" tickLabelFill="WHITE" upperBound="164.0" />
                      </yAxis>
                   </LineChart>
-                  <AnchorPane prefHeight="67.0" prefWidth="819.0" stylesheets="@darkSky.css">
+                  <AnchorPane prefHeight="83.0" prefWidth="819.0">
                      <children>
-                        <Button layoutX="205.0" layoutY="19.0" mnemonicParsing="false" onAction="#loadInstrument" text="Load" textFill="WHITE" />
-                        <TextField fx:id="tickerInput" layoutX="46.0" layoutY="19.0" />
-                        <Button fx:id="primaryButton11" layoutX="307.0" layoutY="19.0" onAction="#postAccessToken" stylesheets="@darkSky.css" text="Post Access Token" textFill="WHITE" />
-                        <Button layoutX="452.0" layoutY="19.0" mnemonicParsing="false" onAction="#startStreamingSession" text="Start Streaming Session" textFill="WHITE" />
-                        <Button layoutX="638.0" layoutY="19.0" mnemonicParsing="false" onAction="#switchToTrainingMode" text="Switch to Training Mode" textFill="WHITE" />
+                        <Button layoutX="662.0" layoutY="43.0" mnemonicParsing="false" onAction="#loadInstrument" stylesheets="@darkSky.css" text="Search" textFill="WHITE">
+                           <font>
+                              <Font size="10.0" />
+                           </font></Button>
+                        <TextField fx:id="tickerInput" layoutX="556.0" layoutY="45.0" prefHeight="25.0" prefWidth="94.0" stylesheets="@darkSky.css" />
+                        <ComboBox layoutX="78.0" layoutY="4.0" prefHeight="25.0" prefWidth="126.0" promptText="Time Interval" stylesheets="@darkSky.css" />
+                        <ComboBox layoutX="78.0" layoutY="46.0" prefHeight="25.0" prefWidth="126.0" promptText="Time Units" stylesheets="@darkSky.css" />
+                        <ComboBox layoutX="217.0" layoutY="46.0" prefHeight="25.0" prefWidth="144.0" promptText="Frequency Units" stylesheets="@darkSky.css" />
+                        <ComboBox layoutX="217.0" layoutY="4.0" prefHeight="25.0" prefWidth="144.0" promptText="Frequency Interval" stylesheets="@darkSky.css" />
+                        <DatePicker layoutX="372.0" layoutY="5.0" promptText="Start Date" stylesheets="@darkSky.css" />
+                        <DatePicker layoutX="372.0" layoutY="45.0" promptText="End Date" stylesheets="@darkSky.css" />
+                        <CheckBox layoutX="556.0" layoutY="9.0" mnemonicParsing="false" text="Extended Hours Data" textFill="WHITE" />
                      </children>
                   </AnchorPane>
                </children>
@@ -84,15 +107,17 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <TextFlow layoutX="14.0" layoutY="10.0" prefHeight="161.0" prefWidth="434.0">
-                           <children>
-                              <Label fx:id="modelOutput" prefHeight="158.0" prefWidth="431.0" textFill="WHITE">
-                                 <font>
-                                    <Font size="14.0" />
-                                 </font>
-                              </Label>
-                           </children>
-                        </TextFlow>
+                        <Label fx:id="modelOutput" layoutX="101.0" layoutY="9.0" prefHeight="163.0" prefWidth="577.0" style="-fx-background-color: #253151;" textFill="WHITE">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <TextField fx:id="maxIterationsInput" layoutX="14.0" layoutY="33.0" prefHeight="25.0" prefWidth="75.0" text="1000" />
+                        <Label layoutX="14.0" layoutY="14.0" text="Max Iterations" textFill="WHITE" />
+                        <Label layoutX="16.0" layoutY="69.0" text="Max Error" textFill="WHITE" />
+                        <TextField fx:id="maxErrorInput" layoutX="15.0" layoutY="86.0" prefHeight="25.0" prefWidth="74.0" text="0.001" />
+                        <Label layoutX="16.0" layoutY="117.0" text="Learning Rate" textFill="WHITE" />
+                        <TextField fx:id="learningRateInput" layoutX="14.0" layoutY="134.0" prefHeight="25.0" prefWidth="74.0" text="0.7" />
                      </children>
                   </AnchorPane>
               </content>
