@@ -103,6 +103,10 @@ public class Client {
      * @throws ParseException
      */
     private void getUserPrincipals() throws IOException, ParseException {
+        if ( ACCESS_TOKEN == "<RETRIEVE-ACCESS-TOKEN>" ) {
+            postAccessToken();
+        }
+        
         String url = "https://api.tdameritrade.com/v1/userprincipals?fields=streamerSubscriptionKeys,streamerConnectionInfo";
         URL u = new URL(url);
 
@@ -131,16 +135,15 @@ public class Client {
      * @throws IOException
      * @throws ParseException
      */
-    private JSONObject downloadData( String url ) throws IOException, ParseException {
+    private JSONObject sendRequest( String url ) throws IOException, ParseException {
         URL u = new URL(url);
-
         HttpURLConnection connection = (HttpURLConnection) u.openConnection();
         connection.setRequestMethod("GET");
         connection.setRequestProperty("User-Agent", "Delta Seeker");
         connection.setRequestProperty("Accept-Language", "en-US,en");
 
         try {
-            System.out.println("Response Code: " + connection.getResponseCode() );
+            System.out.println("Request Response Code: " + connection.getResponseCode() );
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -150,6 +153,27 @@ public class Client {
         JSONObject jo = (JSONObject) response;
         in.close();
         return jo;
+    }
+
+    private JSONArray sendAuthorizedRequest( String url ) throws IOException, ParseException {
+        URL u = new URL(url);
+        HttpURLConnection connection = (HttpURLConnection) u.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("User-Agent", "Delta Seeker");
+        connection.setRequestProperty("Accept-Language", "en-US,en");
+        connection.addRequestProperty("Authorization", "Bearer " + ACCESS_TOKEN);
+
+        try {
+            System.out.println("Authorized Request Response Code: " + connection.getResponseCode() );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        Object response = new JSONParser().parse(in);
+        JSONArray ja = (JSONArray) response;
+        in.close();
+        return ja;
     }
 
     /**
@@ -205,7 +229,7 @@ public class Client {
         if ( !ext )
             newUrl += "&needExtendedHoursData=false";
 
-        return downloadData(newUrl);
+        return sendRequest(newUrl);
     }
 
     /**
@@ -216,9 +240,9 @@ public class Client {
      * @throws ParseException
      */
     public JSONObject getQuote( String ticker ) throws IOException, ParseException {
-        String baseUrl = "https://api.tdameritrade.com/v1/marketdata/TLT/quotes?apikey=" + TD_API_KEY;
+        String baseUrl = "https://api.tdameritrade.com/v1/marketdata/{ticker}/quotes?apikey=" + TD_API_KEY;
         String newUrl = baseUrl.replace(CONST_TICKER, ticker);
-        return downloadData(newUrl);
+        return sendRequest(newUrl);
     }
 
     /**
@@ -231,7 +255,16 @@ public class Client {
     public JSONObject getInstrument( String ticker ) throws IOException, ParseException { 
         String baseUrl = "https://api.tdameritrade.com/v1/instruments?apikey=" + TD_API_KEY  + "&symbol={ticker}&projection=fundamental";
         String newUrl = baseUrl.replace(CONST_TICKER, ticker);
-        return downloadData(newUrl);
+        return sendRequest(newUrl);
+    }
+
+    public JSONArray getWatchlistSingleAccount() throws IOException, ParseException {
+        getUserPrincipals();
+        JSONArray accounts = (JSONArray) userPrincipals.get("accounts");
+        JSONObject accountElements = (JSONObject) accounts.get(0);
+        String accountId = (String) accountElements.get("accountId");
+        String url = "https://api.tdameritrade.com/v1/accounts/" + accountId + "/watchlists";
+        return sendAuthorizedRequest(url);
     }
 
     /**
@@ -244,7 +277,6 @@ public class Client {
         HashMap<String, Object> credentials = new HashMap<>();
         HashMap<String, Object> parameters = new HashMap<>();
         HashMap<String, Object> requests = new HashMap<>();
-
 
         JSONArray accounts = (JSONArray) userPrincipals.get("accounts");
         JSONObject accountElements = (JSONObject) accounts.get(0);
@@ -334,7 +366,6 @@ public class Client {
      * @throws java.text.ParseException
      */
     public void openStream() throws IOException, ParseException, DeploymentException, java.text.ParseException {
-        getUserPrincipals();
         try {
             // open websocket
             JSONObject streamerInfo = (JSONObject) userPrincipals.get("streamerInfo");
