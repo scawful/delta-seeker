@@ -14,6 +14,7 @@ public class Historical {
     static double maxHigh;
     static double meanClose;
     static double minLow = Double.POSITIVE_INFINITY;
+    static long maxVolume;
 
     public static class Candle {
         long volume;
@@ -48,6 +49,10 @@ public class Historical {
 
         public double getOpen() {
             return this.open;
+        }
+
+        public long getVolume() {
+            return this.volume;
         }
 
         public Date getDatetime() {
@@ -91,6 +96,10 @@ public class Historical {
         if ( l < minLow ) 
             minLow = l;
 
+        if ( v > maxVolume ) {
+            maxVolume = v;
+        }
+
         meanClose += c;
 
         Candle newCandle = new Candle(v,h,l,o,c,rdt,dt);
@@ -119,6 +128,10 @@ public class Historical {
 
     public static double getMinLow() {
         return minLow;
+    }
+
+    public static long getMaxVolume() {
+        return maxVolume; 
     }
 
     public static void sortCandles() {
