@@ -11,13 +11,20 @@ public class Watchlist {
 
     public class Symbol {
         private final SimpleStringProperty symbol;
+        private final SimpleStringProperty assetType;
 
-        public Symbol(String s) {
+        public Symbol(String s, String as) {
             this.symbol = new SimpleStringProperty(s);
+            this.assetType = new SimpleStringProperty(as);
         }
 
         public String getSymbol() {
             return symbol.get();
+        }
+
+
+        public String getAssetType() {
+            return assetType.get();
         }
     }
 
@@ -53,8 +60,12 @@ public class Watchlist {
         return FXCollections.observableArrayList(symbols);
     }
 
-    public void addSymbol(String ticker) {
-        symbols.add(new Symbol(ticker));
+    public void clearSymbolList() {
+        symbols.clear();
+    }
+
+    public void addSymbol(String ticker, String assetType) {
+        symbols.add(new Symbol(ticker, assetType));
     }
 
 }

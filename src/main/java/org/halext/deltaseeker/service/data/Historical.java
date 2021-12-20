@@ -73,6 +73,7 @@ public class Historical {
 
 
     private Historical() {
+        candles = new ArrayList<>();
     }
 
     public static List<Candle> candles;
@@ -136,6 +137,24 @@ public class Historical {
 
     public static void sortCandles() {
         Collections.sort(candles, new SortCandle());
+    }
+
+    public static int getNumCandles() {
+        if ( candles == null ) 
+            return 0;
+        else
+            return candles.size();
+    }
+
+    public static void clearCandles() {
+        minLow = Double.POSITIVE_INFINITY;
+        maxOpen = 0;
+        maxClose = 0;
+        maxLow = 0;
+        maxHigh = 0;
+        meanClose = 0;
+        maxVolume = 0;
+        candles.clear();
     }
 
 }

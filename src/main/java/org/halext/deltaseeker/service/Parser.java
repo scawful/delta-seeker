@@ -26,6 +26,10 @@ public class Parser {
     public void parsePriceHistory( JSONObject jo ) {
         JSONArray candles = (JSONArray) jo.get("candles");
 
+        if ( Historical.getNumCandles() != 0 ) {
+            Historical.clearCandles();
+        }
+
 		@SuppressWarnings("unchecked")
 		Iterator<JSONObject> it = candles.iterator();
 		while (it.hasNext()) {
@@ -76,8 +80,7 @@ public class Parser {
                 JSONObject eachInstrument = (JSONObject) items.get(j);
                 watchlist.addItem("sequenceId", eachInstrument.get("sequenceId"));
                 JSONObject instrumentInformation = (JSONObject) eachInstrument.get("instrument");
-                watchlist.addSymbol((String) instrumentInformation.get("symbol"));
-                watchlist.addItem("assetType", instrumentInformation.get("assetType"));
+                watchlist.addSymbol((String) instrumentInformation.get("symbol"), (String) instrumentInformation.get("assetType"));
             }
             watchlists.add(watchlist);
         } 

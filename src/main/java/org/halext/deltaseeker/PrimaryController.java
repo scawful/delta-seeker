@@ -22,12 +22,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -48,13 +51,17 @@ public class PrimaryController {
     @FXML TextField tickerInput;
     @FXML Label modelOutput;
     @FXML LineChart<String, Number> mainChart;
+    @FXML BarChart <String, Number> volumeChart;
     @FXML TableView<Symbol> watchlistTable;
     @FXML ComboBox<String> watchlistComboBox;
     @FXML TextField maxIterationsInput;
     @FXML TextField maxErrorInput;
     @FXML TextField learningRateInput;
     @FXML TextField movingAveragePeriod;
+    @FXML ListView<Object> transferFunctionTypes;
+    @FXML ListView<Object> networkTypes;
     @FXML MenuBar menuBar;
+    @FXML ColorPicker movingAverageColorPicker;
 
     @FXML CheckBox inputOpen;
     @FXML CheckBox inputClose;
@@ -68,7 +75,18 @@ public class PrimaryController {
     @FXML CheckBox outputLow;
     @FXML CheckBox outputVolume;
     
+    @FXML XYChart.Series<String, Number> priceSeries;
+    @FXML XYChart.Series<String, Number> volumeSeries;
 
+    private Boolean instrumentSet;
+
+    private String transferFunctionType = "SIGMOID";
+
+    @FXML public void changeTransferFunction(MouseEvent arg0) {
+        transferFunctionType = (String) transferFunctionTypes.getSelectionModel().getSelectedItem();
+        System.out.println("clicked on " + transferFunctionTypes.getSelectionModel().getSelectedItem()); 
+    }
+    
     private int[] buildInputParameters() {
         ArrayList<Integer> inputs = new ArrayList<>();
         if ( inputOpen.isSelected() )
@@ -109,9 +127,47 @@ public class PrimaryController {
         return outputs.stream().mapToInt(i -> i).toArray();
     }
 
+    private void initTransferTypes() {
+        ArrayList<String> transferTypes = new ArrayList<>();
+        transferTypes.add("SIGMOID");
+        transferTypes.add("GAUSSIAN");
+        transferTypes.add("LINEAR");
+        transferTypes.add("LOG");
+        transferTypes.add("RAMP");
+        transferTypes.add("SGN");
+        transferTypes.add("SIN");
+        transferTypes.add("STEP");
+        transferTypes.add("TANH");
+        transferTypes.add("TRAPEZOID");
+        transferFunctionTypes.getItems().setAll(FXCollections.observableArrayList(transferTypes));
+    }
+
+    private void initNetworkTypes() {
+        ArrayList<String> networkTypeArray = new ArrayList<>();
+        networkTypeArray.add("Adaline");
+        networkTypeArray.add("AutoencoderNetwork");
+        networkTypeArray.add("BAM");
+        networkTypeArray.add("CompetitiveNetwork");
+        networkTypeArray.add("ConvolutionalNetwork");
+        networkTypeArray.add("Hopfield");
+        networkTypeArray.add("Instar");
+        networkTypeArray.add("Kohonen");
+        networkTypeArray.add("MaxNet");
+        networkTypeArray.add("MultiLayerPerceptron");
+        networkTypeArray.add("NeuroFuzzyPerceptron");
+        networkTypeArray.add("Outstar");
+        networkTypeArray.add("Perceptron");
+        networkTypeArray.add("RBFNetwork");
+        networkTypes.getItems().setAll(FXCollections.observableArrayList(networkTypeArray));
+    }
+
     @FXML
     public void initialize() {
+        instrumentSet = false;
         mainChart.lookup(".chart-plot-background").setStyle("-fx-background-color: #30384b;");
+        volumeChart.setVisible(false);
+        initTransferTypes();
+        initNetworkTypes();
         try {
             client.retrieveKeyFile();
             watchlists = parser.parseWatchlistData( client.getWatchlistSingleAccount() );   
@@ -141,14 +197,14 @@ public class PrimaryController {
         TableColumn<Symbol, String> askColumn = new TableColumn<>("Ask");
 
         watchlistTable.setEditable(true);
-        symbolColumn.setMinWidth(100);
+        symbolColumn.setMinWidth(75);
         symbolColumn.setCellValueFactory(new PropertyValueFactory<Symbol, String>("symbol"));
+        typeColumn.setCellValueFactory(new PropertyValueFactory<Symbol, String>("assetType"));
 
         watchlistTable.setItems(watchlists.get(position).createSymbolList());
         watchlistTable.getColumns().addAll(symbolColumn, typeColumn, bidColumn, askColumn); 
 
         watchlistTable.getSelectionModel().setCellSelectionEnabled(true);
-        
         watchlistTable.setOnMouseClicked((MouseEvent event) -> {
             if (event.getClickCount() > 1) {
                 try {
@@ -157,8 +213,7 @@ public class PrimaryController {
                     e.printStackTrace();
                 }
             }
-        });
-        
+        });        
     }
 
     @FXML
@@ -168,6 +223,7 @@ public class PrimaryController {
             Symbol symbol = watchlistTable.getSelectionModel().getSelectedItem();
             Model pricePredictionModel = new Model();
             try {
+                pricePredictionModel.setTransferFunctionType(transferFunctionType);
                 pricePredictionModel.createPriceHistory( symbol.getSymbol() );
                 pricePredictionModel.loadDataSet(buildInputParameters(), buildOutputParameters(), 0);
                 pricePredictionModel.trainNetwork(Integer.parseInt(maxIterationsInput.getText()), 
@@ -185,44 +241,59 @@ public class PrimaryController {
 
     @FXML
     public void loadChart( String ticker ) {
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        if ( instrumentSet ) {
+            this.priceSeries.getData().clear();
+            this.volumeSeries.getData().clear();
+            mainChart.getData().clear();
+            volumeChart.getData().clear();
+        }
+        instrumentSet = true;
+        this.priceSeries = new XYChart.Series<>();
+        this.volumeSeries = new XYChart.Series<>();
         Double minLow = Historical.getMinLow();
         Double maxHigh = Historical.getMaxHigh();
         priceAxis.setLowerBound(minLow.intValue() - 1);
         priceAxis.setUpperBound(maxHigh.intValue() + 1);
-        series.setName(ticker);
-        for ( int i = 0; i < Historical.candles.size(); i++ )
+        priceSeries.setName(ticker);
+        for ( int i = 0; i < Historical.getNumCandles(); i++ )
         {
             String shortDate = Historical.candles.get(i).getDatetime().toString().substring(4,10);
-            series.getData().add(new XYChart.Data<>(shortDate, Historical.candles.get(i).getOpen() ));
+            priceSeries.getData().add(new XYChart.Data<>(shortDate, Historical.candles.get(i).getOpen() ));
+            volumeSeries.getData().add(new XYChart.Data<>(shortDate, Historical.candles.get(i).getVolume()));
         }
-        mainChart.getData().add(series);
-        series.getNode().setStyle("-fx-stroke: #405050;");
+        mainChart.lookup(".chart-plot-background").setStyle("-fx-background-color: transparent;");
+        volumeChart.lookup(".chart-plot-background").setStyle("-fx-background-color: #30384b;");
+        mainChart.getData().add(priceSeries);
+        volumeChart.getData().add(volumeSeries);
         
+        priceSeries.getNode().setStyle("-fx-stroke: #405050;");
         Platform.runLater(()
                 -> {
 
             Set<Node> nodes = mainChart.lookupAll(".series" + 0);
             for (Node n : nodes) {
-                n.setStyle("-fx-background-color: black, white;\n"
+                n.setStyle("-fx-background-color: white;\n"
                         + "    -fx-background-insets: 0, 2;\n"
                         + "    -fx-background-radius: 5px;\n"
                         + "    -fx-padding: 1px;");
             }
 
-            series.getNode().lookup(".chart-series-line").setStyle("-fx-stroke: #9DAAD9;");
+            // b6bcd1
+            priceSeries.getNode().lookup(".chart-series-line").setStyle("-fx-stroke: #9DAAD9;");
         });
 
         mainChart.axisSortingPolicyProperty();
         mainChart.setAnimated(false);// disable animation
+        volumeChart.setVisible(true);
     }
     
     @FXML
     public void loadMovingAverage() {
-        int period = Integer.parseInt(movingAveragePeriod.getText());
+        Integer period = Integer.parseInt(movingAveragePeriod.getText());
         int minPeriod = 0;
         XYChart.Series<String, Number> series = new XYChart.Series<>();
 
+        series.setName(period.toString() + "MA");
         int n = Historical.candles.size();
         for ( int i = 0; i < n; i++ )
         {
@@ -245,26 +316,13 @@ public class PrimaryController {
         mainChart.getData().add(series);
 
         Node line = series.getNode().lookup(".chart-series-line");
-
-        Color color = Color.RED; // or any other color
-
+        Color color = movingAverageColorPicker.getValue();
         String rgb = String.format("%d, %d, %d",
                 (int) (color.getRed() * 255),
                 (int) (color.getGreen() * 255),
                 (int) (color.getBlue() * 255));
 
         line.setStyle("-fx-stroke: rgba(" + rgb + ", 1.0);");
-
-        Platform.runLater(()
-                -> {
-            Set<Node> nodes = mainChart.lookupAll(".series" + 1);
-            for (Node nma : nodes) {
-                nma.setStyle("-fx-background-color: transparent;\n"
-                        + "    -fx-background-radius: 1px;\n"
-                        + "    -fx-padding: 1px;");
-            }
-        });
-
     }
 
     @FXML
@@ -332,6 +390,7 @@ public class PrimaryController {
     @FXML
     private void loadInstrument() throws IOException, ParseException {
         Model pricePredictionModel = new Model();
+        pricePredictionModel.setTransferFunctionType(transferFunctionType);
         pricePredictionModel.createPriceHistory( tickerInput.getText() );
         pricePredictionModel.loadDataSet(buildInputParameters(), buildOutputParameters(), 0);
         pricePredictionModel.trainNetwork(Integer.parseInt(maxIterationsInput.getText()), 

@@ -13,6 +13,7 @@ import org.neuroph.core.data.DataSetRow;
 import org.neuroph.core.learning.error.MeanSquaredError;
 import org.neuroph.nnet.MultiLayerPerceptron;
 import org.neuroph.nnet.learning.BackPropagation;
+import org.neuroph.util.TransferFunctionType;
 
 public class Model {
 
@@ -22,7 +23,10 @@ public class Model {
 
     // NeuralNetwork components 
     private NeuralNetwork<BackPropagation> neuralNet;
+    private TransferFunctionType transferFunction;
     private DataSet trainingSet;
+
+    private ArrayList<String> transferFunctionList;
 
     // API Objects 
     private Parser parser;
@@ -198,7 +202,7 @@ public class Model {
     }
 
     public void trainNetwork(int maxIterations, double maxError, double learningRate) {
-        neuralNet = new MultiLayerPerceptron(numInputs, 9, numOutputs);      
+        neuralNet = new MultiLayerPerceptron(transferFunction, numInputs, 9, numOutputs);      
 
         // learn the training set
         BackPropagation backPropagation = new BackPropagation();
@@ -257,7 +261,36 @@ public class Model {
         debugModelOutput += "Mean squared error is: " + mse.getTotalError();
     }
 
+    
+    public void setTransferFunctionType( String function ) {
+        if ( function == "GAUSSIAN" ) {
+            transferFunction = TransferFunctionType.GAUSSIAN;
+        } else if ( function == "LINEAR") {
+            transferFunction = TransferFunctionType.LINEAR;
+        } else if ( function == "LOG") {
+            transferFunction = TransferFunctionType.LOG;
+        } else if ( function == "RAMP") {
+            transferFunction = TransferFunctionType.RAMP;
+        } else if ( function == "SGN") {
+            transferFunction = TransferFunctionType.SGN;
+        } else if ( function == "SIN") {
+            transferFunction = TransferFunctionType.SIN;
+        } else if ( function == "STEP") {
+            transferFunction = TransferFunctionType.STEP;
+        } else if ( function == "TANH") {
+            transferFunction = TransferFunctionType.TANH;
+        } else if ( function == "TRAPEZOID") {
+            transferFunction = TransferFunctionType.TRAPEZOID;
+        } else {
+            transferFunction = TransferFunctionType.SIGMOID;
+        }
+    }
+
     public String getDebugOutput() {
         return debugModelOutput;
+    }
+
+    public void getTransferFunctionList(ArrayList<String> list) {
+        this.transferFunctionList = list;
     }
 }
