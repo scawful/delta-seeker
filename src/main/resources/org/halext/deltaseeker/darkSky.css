@@ -41,17 +41,22 @@
 }
 
 .tab-pane {
-    -fx-tab-min-width:90px;
+    -fx-tab-min-width:75px;
+    -fx-text-fill: white;
 }
 
 .tab {
     -fx-background-insets: 0 1 0 1,0,0;
+    -fx-border-color: #fff;
+    -fx-border-radius: 2 2 0 0;
+    -fx-margin: 0;
 }
 
 .tab-pane .tab
 {
     -fx-background-color: #192136;
-    -fx-border-fill: #000;
+    -fx-border-fill: #000 2px;
+    -fx-text-fill: white;
 }
 
 .tab-pane .tab:selected
@@ -62,7 +67,6 @@
 .tab .tab-label { 
     -fx-alignment: CENTER;
     -fx-text-fill: #9DAAD9;
-    -fx-font-size: 12px;
     -fx-font-weight: bold;
 }
 
@@ -75,7 +79,7 @@
     -fx-padding: 6;
     -fx-background-color: #253151;
     -fx-font-weight: bold;
-    -fx-font-size: 1.1em;
+    /* -fx-font-size: 1.1em; */
 }
 
 .button:hover {
@@ -174,6 +178,22 @@
     -fx-padding: 2;
 }
 
+.list-view {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0, 1;
+    -fx-padding: 1;
+}
+
+.list-view .scroll-bar:vertical,
+.list-view .scroll-bar:vertical .track,
+.list-view .scroll-bar:vertical .track-background {
+    -fx-background-color: #253151;
+}
+
+.list-view .scroll-bar:vertical .thumb {
+    -fx-background-color:  linear-gradient(to bottom, #29365a, #304069);
+}
+
 .table-view .virtual-flow .scroll-bar:vertical .thumb{
     -fx-background-color:  linear-gradient(to bottom, #29365a, #304069);
 }
@@ -222,3 +242,5 @@
     -fx-background-radius: 6.4, 4, 5, 3;
     -fx-background-insets: -1.4, 0, 1, 2;
 }
+
+.default-color0.chart-bar { -fx-bar-fill: #354369 }
