@@ -50,7 +50,7 @@ public class Client {
      * @throws IOException
      */
     public void retrieveKeyFile() throws IOException {
-        String apiFileLocation = "C:/Users/starw/iCloudDrive/Documents/Java/deltaseeker/src/api.txt";
+        String apiFileLocation = "/Users/scawful/Code/Java/delta-seeker/src/api.txt";
         try ( BufferedReader apiReader = new BufferedReader( new FileReader(apiFileLocation) )) {
             TD_API_KEY = apiReader.readLine();
             TD_REFRESH_TOKEN = apiReader.readLine();
@@ -258,6 +258,14 @@ public class Client {
         return sendRequest(newUrl);
     }
 
+    public JSONArray getOrders(int maxResults) throws IOException, ParseException {
+        JSONArray accounts = (JSONArray) userPrincipals.get("accounts");
+        JSONObject accountElements = (JSONObject) accounts.get(0);
+        String accountId = (String) accountElements.get("accountId");
+        String url = "https://api.tdameritrade.com/v1/accounts/" + accountId + "/orders?maxResults=" + maxResults;
+        return sendAuthorizedRequest(url);
+    }
+
     public JSONArray getWatchlistSingleAccount() throws IOException, ParseException {
         getUserPrincipals();
         JSONArray accounts = (JSONArray) userPrincipals.get("accounts");
@@ -322,11 +330,7 @@ public class Client {
         JSONObject parametersJSON = new JSONObject(parameters);
 
         requests.put("parameters", parametersJSON);
-
-        // JSONArray requestsArray = new JSONArray();
-        // requestsArray.add(requests);
         JSONObject requestsJSON = new JSONObject(requests);
-        // requestsJSON.put("requests", requestsArray);
 
         System.out.println(requestsJSON.toJSONString().replace("\\", ""));
         return requestsJSON.toJSONString().replace("\\", "");

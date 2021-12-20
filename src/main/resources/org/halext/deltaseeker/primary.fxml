@@ -25,6 +25,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+
 <VBox style="-fx-background-color: #1A2237;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.halext.deltaseeker.PrimaryController">
    <children>
       <MenuBar fx:id="menuBar" nodeOrientation="LEFT_TO_RIGHT" style="-fx-padding: 2.0;" stylesheets="@darkSky.css">
@@ -146,11 +147,11 @@
             </VBox>
          </children>
       </HBox>
-      <TabPane prefHeight="239.0" style="-fx-border-color: #9DAAD9;" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE">
+      <TabPane style="-fx-border-color: #9DAAD9;" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE">
         <tabs>
             <Tab text="Models">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="200.0">
                      <children>
                         <Label fx:id="modelOutput" layoutX="559.0" layoutY="25.0" prefHeight="165.0" prefWidth="331.0" style="-fx-background-color: #253151;" textFill="WHITE" AnchorPane.bottomAnchor="8.0">
                            <font>
@@ -215,7 +216,11 @@
             </Tab>
           <Tab text="Orders">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <TableView fx:id="ordersTable" prefHeight="211.0" prefWidth="1123.0" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                     </children>
+                  </AnchorPane>
             </content>
           </Tab>
           <Tab text="Positions">

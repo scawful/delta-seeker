@@ -6,10 +6,12 @@ import org.json.simple.JSONArray;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import org.halext.deltaseeker.service.data.Quote;
 import org.halext.deltaseeker.service.data.Historical;
 import org.halext.deltaseeker.service.data.Instrument;
+import org.halext.deltaseeker.service.data.Order;
 import org.halext.deltaseeker.service.data.Watchlist;
 
 public class Parser {
@@ -68,8 +70,8 @@ public class Parser {
         
     }
 
-    public ArrayList<Watchlist> parseWatchlistData( JSONArray jo ) {
-        ArrayList<Watchlist> watchlists = new ArrayList<Watchlist>();
+    public List<Watchlist> parseWatchlistData( JSONArray jo ) {
+        ArrayList<Watchlist> watchlists = new ArrayList<>();
 
         for ( int i = 0; i < jo.size(); i++ ) {
             JSONObject wrapper = (JSONObject) jo.get(i);
@@ -85,6 +87,27 @@ public class Parser {
             watchlists.add(watchlist);
         } 
         return watchlists;
+    }
+
+    public List<Order> parseOrders( JSONArray jo ) {
+        ArrayList<Order> orders = new ArrayList<>();
+        
+        for ( int i = 0; i < jo.size(); i++ ) {
+            JSONObject orderGet = (JSONObject) jo.get(i);
+            Double price = (Double) orderGet.get("price");
+            String orderType = (String) orderGet.get("orderType");
+            String enteredTime = (String) orderGet.get("enteredTime");
+            Double quantity = (Double) orderGet.get("quantity");
+            JSONArray orderLegCollection = (JSONArray) orderGet.get("orderLegCollection");
+            JSONObject orderLeg = (JSONObject) orderLegCollection.get(0);
+            JSONObject instrument = (JSONObject) orderLeg.get("instrument");
+            String symbol = (String) instrument.get("symbol");
+            String assetType = (String) instrument.get("assetType");
+
+            orders.add(new Order(symbol, assetType, price, orderType, quantity, enteredTime));
+        }
+        
+        return orders;
     }
 
     public double getVolatility( JSONObject jo, String ticker ) {

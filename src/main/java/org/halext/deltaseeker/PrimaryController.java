@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import javax.websocket.DeploymentException;
@@ -13,8 +14,10 @@ import org.halext.deltaseeker.service.Client;
 import org.halext.deltaseeker.service.Model;
 import org.halext.deltaseeker.service.Parser;
 import org.halext.deltaseeker.service.data.Historical;
+import org.halext.deltaseeker.service.data.Order;
 import org.halext.deltaseeker.service.data.Watchlist;
 import org.halext.deltaseeker.service.data.Watchlist.Symbol;
+import org.halext.deltaseeker.service.graphics.Chart;
 import org.json.simple.parser.ParseException;
 
 import javafx.application.Platform;
@@ -41,17 +44,26 @@ import javafx.scene.paint.Color;
 
 public class PrimaryController {
 
+    List<Watchlist> watchlists;
+
     private static final String COMMA_DELIMITER = ",";
     Client client = new Client();
     Parser parser = new Parser();
+    Chart chart;
+    
+    private Boolean instrumentSet;
 
-    ArrayList<Watchlist> watchlists;
+    private String transferFunctionType = "SIGMOID";
 
+    /**
+     * GUI Elements 
+     */
+    @FXML LineChart<String, Number> mainChart;
+    @FXML BarChart <String, Number> volumeChart;
     @FXML NumberAxis priceAxis; 
     @FXML TextField tickerInput;
     @FXML Label modelOutput;
-    @FXML LineChart<String, Number> mainChart;
-    @FXML BarChart <String, Number> volumeChart;
+    @FXML TableView<Order> ordersTable;
     @FXML TableView<Symbol> watchlistTable;
     @FXML ComboBox<String> watchlistComboBox;
     @FXML TextField maxIterationsInput;
@@ -78,14 +90,16 @@ public class PrimaryController {
     @FXML XYChart.Series<String, Number> priceSeries;
     @FXML XYChart.Series<String, Number> volumeSeries;
 
-    private Boolean instrumentSet;
-
-    private String transferFunctionType = "SIGMOID";
-
     @FXML public void changeTransferFunction(MouseEvent arg0) {
         transferFunctionType = (String) transferFunctionTypes.getSelectionModel().getSelectedItem();
         System.out.println("clicked on " + transferFunctionTypes.getSelectionModel().getSelectedItem()); 
     }
+    
+    //----------------------------------------------------------------------------------------------------
+    //
+    //  Private Ancillary Functions 
+    //
+    //----------------------------------------------------------------------------------------------------
     
     private int[] buildInputParameters() {
         ArrayList<Integer> inputs = new ArrayList<>();
@@ -127,6 +141,12 @@ public class PrimaryController {
         return outputs.stream().mapToInt(i -> i).toArray();
     }
 
+    //----------------------------------------------------------------------------------------------------
+    //
+    //  Initialization Functions 
+    //
+    //----------------------------------------------------------------------------------------------------
+
     private void initTransferTypes() {
         ArrayList<String> transferTypes = new ArrayList<>();
         transferTypes.add("SIGMOID");
@@ -161,11 +181,18 @@ public class PrimaryController {
         networkTypes.getItems().setAll(FXCollections.observableArrayList(networkTypeArray));
     }
 
+    //----------------------------------------------------------------------------------------------------
+    //
+    //  Primary Controller Entry
+    //
+    //----------------------------------------------------------------------------------------------------
+
     @FXML
     public void initialize() {
         instrumentSet = false;
-        mainChart.lookup(".chart-plot-background").setStyle("-fx-background-color: #30384b;");
-        volumeChart.setVisible(false);
+        chart = new Chart(mainChart, volumeChart);
+        chart.initBackground();
+
         initTransferTypes();
         initNetworkTypes();
         try {
@@ -182,6 +209,8 @@ public class PrimaryController {
                 buildWatchlist(position);
                 System.out.println("clicked on " + watchlistComboBox.getSelectionModel().getSelectedItem());
              }); 
+
+             buildAccountOrders();
             
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -214,6 +243,32 @@ public class PrimaryController {
                 }
             }
         });        
+    }
+
+    @FXML
+    @SuppressWarnings("unchecked")
+    public void buildAccountOrders() {
+        TableColumn<Order, String> symbolColumn = new TableColumn<>("Symbol");
+        TableColumn<Order, String> orderTypeColumn = new TableColumn<>("Order Type");
+        TableColumn<Order, String> assetTypeColumn = new TableColumn<>("Asset Type");
+        TableColumn<Order, String> priceColumn = new TableColumn<>("Price");
+        TableColumn<Order, String> quantityColumn = new TableColumn<>("Quantity");
+        TableColumn<Order, String> enteredTimeColumn = new TableColumn<>("Entered Time");
+
+        symbolColumn.setCellValueFactory(new PropertyValueFactory<Order, String>("symbol"));
+        orderTypeColumn.setCellValueFactory(new PropertyValueFactory<Order, String>("orderType"));
+        assetTypeColumn.setCellValueFactory(new PropertyValueFactory<Order, String>("assetType"));
+        priceColumn.setCellValueFactory(new PropertyValueFactory<Order, String>("price"));
+        quantityColumn.setCellValueFactory(new PropertyValueFactory<Order, String>("quantity"));
+        enteredTimeColumn.setCellValueFactory(new PropertyValueFactory<Order, String>("enteredTime"));
+
+        try {
+            ordersTable.setItems(FXCollections.observableArrayList(parser.parseOrders( client.getOrders(10) )));
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+
+        ordersTable.getColumns().addAll(symbolColumn, assetTypeColumn, orderTypeColumn, priceColumn, quantityColumn, enteredTimeColumn); 
     }
 
     @FXML
@@ -261,26 +316,27 @@ public class PrimaryController {
             priceSeries.getData().add(new XYChart.Data<>(shortDate, Historical.candles.get(i).getOpen() ));
             volumeSeries.getData().add(new XYChart.Data<>(shortDate, Historical.candles.get(i).getVolume()));
         }
-        mainChart.lookup(".chart-plot-background").setStyle("-fx-background-color: transparent;");
-        volumeChart.lookup(".chart-plot-background").setStyle("-fx-background-color: #30384b;");
+        chart.updateChartBackground();
         mainChart.getData().add(priceSeries);
         volumeChart.getData().add(volumeSeries);
+        chart.setPriceLineColor(priceSeries);
         
-        priceSeries.getNode().setStyle("-fx-stroke: #405050;");
-        Platform.runLater(()
-                -> {
+        // Platform.runLater(()
+        //         -> {
 
-            Set<Node> nodes = mainChart.lookupAll(".series" + 0);
-            for (Node n : nodes) {
-                n.setStyle("-fx-background-color: white;\n"
-                        + "    -fx-background-insets: 0, 2;\n"
-                        + "    -fx-background-radius: 5px;\n"
-                        + "    -fx-padding: 1px;");
-            }
+        //     Set<Node> nodes = mainChart.lookupAll(".series" + 0);
+        //     for (Node n : nodes) {
+        //         n.setStyle("-fx-background-color: white;\n"
+        //                 + "    -fx-background-insets: 0, 2;\n"
+        //                 + "    -fx-background-radius: 5px;\n"
+        //                 + "    -fx-padding: 1px;");
+        //     }
 
-            // b6bcd1
-            priceSeries.getNode().lookup(".chart-series-line").setStyle("-fx-stroke: #9DAAD9;");
-        });
+        //     // b6bcd1
+        //     Node ns = mainChart.lookup(".default-color" + legendColorIndex + ".chart-line-symbol");
+        //     ns.setStyle("-fx-background-color: #9DAAD9;");
+        //     priceSeries.getNode().lookup(".chart-series-line").setStyle("-fx-stroke: #9DAAD9;");
+        // });
 
         mainChart.axisSortingPolicyProperty();
         mainChart.setAnimated(false);// disable animation
@@ -314,15 +370,25 @@ public class PrimaryController {
             series.getData().add(new XYChart.Data<>(shortDate, periodSum));
         }
         mainChart.getData().add(series);
-
-        Node line = series.getNode().lookup(".chart-series-line");
         Color color = movingAverageColorPicker.getValue();
-        String rgb = String.format("%d, %d, %d",
-                (int) (color.getRed() * 255),
-                (int) (color.getGreen() * 255),
-                (int) (color.getBlue() * 255));
+        chart.setMovingAverageColor(series, color);
+        // Node line = series.getNode().lookup(".chart-series-line");
+        // Color color = movingAverageColorPicker.getValue();
+        // String hex = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());  
+        // String rgb = String.format("%d, %d, %d",
+        //         (int) (color.getRed() * 255),
+        //         (int) (color.getGreen() * 255),
+        //         (int) (color.getBlue() * 255));
 
-        line.setStyle("-fx-stroke: rgba(" + rgb + ", 1.0);");
+        // Platform.runLater(()
+        //         -> {
+        //     // b6bcd1
+        //     Node ns = mainChart.lookup(".default-color" + legendColorIndex + ".chart-line-symbol");
+        //     ns.setStyle("-fx-background-color: rgba(" + rgb + ", 1.0);");
+        // });
+        // legendColorIndex++;
+        
+        // line.setStyle("-fx-stroke: rgba(" + rgb + ", 1.0);");
     }
 
     @FXML
