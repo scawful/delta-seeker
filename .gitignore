@@ -48,3 +48,39 @@ target/classes/org/halext/deltaseeker/service/data/Instrument.class
 target/classes/org/halext/deltaseeker/service/data/Quote.class
 target/classes/org/halext/deltaseeker/service/data/Watchlist.class
 src/main/resources/org/halext/deltaseeker/primary.fxml
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/ch/qos/logback/logback-classic/1.1.2/logback-classic-1.1.2.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/ch/qos/logback/logback-core/1.1.2/logback-core-1.1.2.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/javax/json/javax.json-api/1.0/javax.json-api-1.0.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/javax/websocket/javax.websocket-api/1.1/javax.websocket-api-1.1.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/javax/websocket/javax.websocket-client-api/1.0/javax.websocket-client-api-1.0.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/junit/junit/4.10/junit-4.10.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/apache/commons/commons-lang3/3.3.2/commons-lang3-3.3.2.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/beykery/neuroph/2.92/neuroph-2.92.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/glassfish/grizzly/grizzly-framework/2.3.15-gfa/grizzly-framework-2.3.15-gfa.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/glassfish/grizzly/grizzly-http/2.3.15-gfa/grizzly-http-2.3.15-gfa.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/glassfish/grizzly/grizzly-http-server/2.3.15-gfa/grizzly-http-server-2.3.15-gfa.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/glassfish/javax.json/1.0.1/javax.json-1.0.1.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/glassfish/tyrus/tyrus-client/1.8.3/tyrus-client-1.8.3.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/glassfish/tyrus/tyrus-container-grizzly-client/1.8.3/tyrus-container-grizzly-client-1.8.3.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/glassfish/tyrus/tyrus-core/1.8.3/tyrus-core-1.8.3.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/glassfish/tyrus/tyrus-spi/1.8.3/tyrus-spi-1.8.3.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/halext/deltaseeker/deltaseeker/1.0-BETA/deltaseeker-1.0-BETA.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/openjfx/javafx-base/13/javafx-base-13-mac.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/openjfx/javafx-base/13/javafx-base-13.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/openjfx/javafx-controls/13/javafx-controls-13-mac.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/openjfx/javafx-controls/13/javafx-controls-13.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/openjfx/javafx-fxml/13/javafx-fxml-13-mac.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/openjfx/javafx-fxml/13/javafx-fxml-13.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/openjfx/javafx-graphics/13/javafx-graphics-13-mac.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/openjfx/javafx-graphics/13/javafx-graphics-13.jar
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Java/org/slf4j/slf4j-api/1.7.5/slf4j-api-1.7.5.jar
+target/classes/org/halext/deltaseeker/service/data/Watchlist$Symbol.class
+target/deltaseeker-1.0-BETA.dmg
+target/classes/org/halext/deltaseeker/delta1.icns
+target/classes/org/halext/deltaseeker/service/data/Order.class
+target/classes/org/halext/deltaseeker/service/graphics/Chart.class
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Info.plist
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/MacOS/JavaAppLauncher
+target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Resources/delta1.icns

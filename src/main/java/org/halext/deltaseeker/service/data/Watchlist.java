@@ -22,7 +22,6 @@ public class Watchlist {
             return symbol.get();
         }
 
-
         public String getAssetType() {
             return assetType.get();
         }
