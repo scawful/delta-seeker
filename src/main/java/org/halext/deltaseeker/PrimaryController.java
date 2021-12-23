@@ -60,7 +60,9 @@ public class PrimaryController {
      */
     @FXML LineChart<String, Number> mainChart;
     @FXML BarChart <String, Number> volumeChart;
+    @FXML LineChart<String, Number> indicatorChart;
     @FXML NumberAxis priceAxis; 
+    @FXML NumberAxis indicatorAxis;
     @FXML TextField tickerInput;
     @FXML Label modelOutput;
     @FXML TableView<Order> ordersTable;
@@ -296,7 +298,7 @@ public class PrimaryController {
 
     @FXML
     public void loadChart( String ticker ) {
-        if ( instrumentSet ) {
+        if ( Boolean.TRUE.equals(instrumentSet) ) {
             this.priceSeries.getData().clear();
             this.volumeSeries.getData().clear();
             mainChart.getData().clear();
@@ -389,6 +391,59 @@ public class PrimaryController {
         // legendColorIndex++;
         
         // line.setStyle("-fx-stroke: rgba(" + rgb + ", 1.0);");
+    }
+
+    @FXML
+    private void loadRelativeStrengthIndex() {
+        XYChart.Series<String, Number> rsiSeries = new XYChart.Series<>();
+        int period = 14;
+        int minPeriod = 0;
+        rsiSeries.setName(period + "RSI");
+        int n = Historical.getNumCandles();
+        double maxRsi = 0.0;
+        double minRsi = Double.POSITIVE_INFINITY;
+        for ( int i = 0; i < n; i++ ) {
+            if ( i < period ) {
+                minPeriod++;
+            } else {
+                minPeriod = period;
+            }
+            double avgGain = 0.0;
+            double avgLoss = 0.0;
+            for ( int j = 0; j < minPeriod; j++ ) {
+                double pnl = Historical.candles.get(i - j).getClose() - Historical.candles.get(i - j).getOpen();
+                pnl /= Historical.candles.get(i - j).getOpen();
+                if ( pnl > 0 ) {
+                    avgGain += pnl;
+                } else { 
+                    avgLoss += pnl;
+                }
+            }
+            avgGain /= minPeriod;
+            avgLoss /= minPeriod;
+    
+            // step one 
+            double relativeStrength = 0.0;
+            if ( avgLoss != 0 ) {
+                relativeStrength = 100 - (100 / 1.0 + (avgGain / avgLoss));
+            }
+            relativeStrength *= 0.01;
+
+            if ( relativeStrength > maxRsi ) {
+                maxRsi = relativeStrength;
+            }
+
+            if ( relativeStrength < minRsi ) {
+                minRsi = relativeStrength;
+            }
+            
+            String shortDate = Historical.candles.get(i).getDatetime().toString().substring(4,10);
+            rsiSeries.getData().add(new XYChart.Data<>(shortDate, relativeStrength));
+        }
+        indicatorAxis.setLowerBound(minRsi);
+        indicatorAxis.setUpperBound(maxRsi);
+        indicatorChart.getData().add(rsiSeries);
+        indicatorChart.setVisible(true);
     }
 
     @FXML
