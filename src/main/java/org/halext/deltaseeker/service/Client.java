@@ -32,6 +32,17 @@ import org.json.simple.parser.ParseException;
  */
 public class Client {
 
+    /**
+     * Request Constants 
+     */
+    private static final String TOKEN = "token";
+    private static final String STREAMER_INFO = "streamerInfo";
+    private static final String ACCOUNTS_STR = "accounts";
+    private static final String EN_US = "en-US,en";
+    private static final String ACCEPT_LANGUAGE = "Accept-Language";
+    private static final String DELTA_SEEKER = "Delta Seeker";
+    private static final String USER_AGENT = "User-Agent";
+    private static final String ACCOUNT_ID = "accountId";
     private static final String CONST_TICKER = "{ticker}";
 
     private JSONObject userPrincipals;
@@ -97,13 +108,13 @@ public class Client {
     }
 
     /**
-     * GET user principals (streaming, )
+     * GET user principals (streaming)
      * @return
      * @throws IOException
      * @throws ParseException
      */
     private void getUserPrincipals() throws IOException, ParseException {
-        if ( ACCESS_TOKEN == "<RETRIEVE-ACCESS-TOKEN>" ) {
+        if ( ACCESS_TOKEN.equals("<RETRIEVE-ACCESS-TOKEN>") ) {
             postAccessToken();
         }
         
@@ -112,8 +123,8 @@ public class Client {
 
         HttpURLConnection connection = (HttpURLConnection) u.openConnection();
         connection.setRequestMethod("GET");
-        connection.setRequestProperty("User-Agent", "Delta Seeker");
-        connection.setRequestProperty("Accept-Language", "en-US,en");
+        connection.setRequestProperty(USER_AGENT, DELTA_SEEKER);
+        connection.setRequestProperty(ACCEPT_LANGUAGE, EN_US);
         connection.addRequestProperty("Authorization", "Bearer " + ACCESS_TOKEN);
 
         try {
@@ -128,6 +139,7 @@ public class Client {
         in.close();
     }
 
+    
     /**
      * GET json response from TDA API (no authentication required) 
      * @param url
@@ -139,8 +151,8 @@ public class Client {
         URL u = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) u.openConnection();
         connection.setRequestMethod("GET");
-        connection.setRequestProperty("User-Agent", "Delta Seeker");
-        connection.setRequestProperty("Accept-Language", "en-US,en");
+        connection.setRequestProperty(USER_AGENT, DELTA_SEEKER);
+        connection.setRequestProperty(ACCEPT_LANGUAGE, EN_US);
 
         try {
             System.out.println("Request Response Code: " + connection.getResponseCode() );
@@ -155,12 +167,21 @@ public class Client {
         return jo;
     }
 
+
+    /**
+     * GET request with use of access token 
+     * 
+     * @param url
+     * @return
+     * @throws IOException
+     * @throws ParseException
+     */
     private JSONArray sendAuthorizedRequest( String url ) throws IOException, ParseException {
         URL u = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) u.openConnection();
         connection.setRequestMethod("GET");
-        connection.setRequestProperty("User-Agent", "Delta Seeker");
-        connection.setRequestProperty("Accept-Language", "en-US,en");
+        connection.setRequestProperty(USER_AGENT, DELTA_SEEKER);
+        connection.setRequestProperty(ACCEPT_LANGUAGE, EN_US);
         connection.addRequestProperty("Authorization", "Bearer " + ACCESS_TOKEN);
 
         try {
@@ -175,6 +196,7 @@ public class Client {
         in.close();
         return ja;
     }
+
 
     /**
      * GET price history via given parameters where default is marked as asterisk
@@ -209,8 +231,7 @@ public class Client {
      * @throws IOException
      * @throws ParseException
      */
-    public JSONObject getPriceHistory( String ticker, String pType, String p, String fType, String f, Boolean ext ) throws IOException, ParseException {
-        // https://api.tdameritrade.com/v1/marketdata/{ticker}/pricehistory?apikey=" + TD_API_KEY  + "&periodType=ytd&period=1&frequencyType=daily&frequency=1&needExtendedHoursData=true
+    public JSONObject getPriceHistory(String ticker, String pType, String p, String fType, String f, Boolean ext) throws IOException, ParseException {
         String baseUrl = "https://api.tdameritrade.com/v1/marketdata/{ticker}/pricehistory?apikey=" + TD_API_KEY;
         String newUrl = baseUrl.replace(CONST_TICKER, ticker);
 
@@ -226,7 +247,7 @@ public class Client {
         if ( f != null )
             newUrl += "&frequency=" + f;
 
-        if ( !ext )
+        if ( Boolean.FALSE.equals(ext) )
             newUrl += "&needExtendedHoursData=false";
 
         return sendRequest(newUrl);
@@ -258,19 +279,27 @@ public class Client {
         return sendRequest(newUrl);
     }
 
+    /**
+     * GET orders from main account by number of desired results (default timeframe 60 days)
+     * 
+     * @param maxResults
+     * @return
+     * @throws IOException
+     * @throws ParseException
+     */
     public JSONArray getOrders(int maxResults) throws IOException, ParseException {
-        JSONArray accounts = (JSONArray) userPrincipals.get("accounts");
+        JSONArray accounts = (JSONArray) userPrincipals.get(ACCOUNTS_STR);
         JSONObject accountElements = (JSONObject) accounts.get(0);
-        String accountId = (String) accountElements.get("accountId");
+        String accountId = (String) accountElements.get(ACCOUNT_ID);
         String url = "https://api.tdameritrade.com/v1/accounts/" + accountId + "/orders?maxResults=" + maxResults;
         return sendAuthorizedRequest(url);
     }
 
     public JSONArray getWatchlistSingleAccount() throws IOException, ParseException {
         getUserPrincipals();
-        JSONArray accounts = (JSONArray) userPrincipals.get("accounts");
+        JSONArray accounts = (JSONArray) userPrincipals.get(ACCOUNTS_STR);
         JSONObject accountElements = (JSONObject) accounts.get(0);
-        String accountId = (String) accountElements.get("accountId");
+        String accountId = (String) accountElements.get(ACCOUNT_ID);
         String url = "https://api.tdameritrade.com/v1/accounts/" + accountId + "/watchlists";
         return sendAuthorizedRequest(url);
     }
@@ -286,12 +315,12 @@ public class Client {
         HashMap<String, Object> parameters = new HashMap<>();
         HashMap<String, Object> requests = new HashMap<>();
 
-        JSONArray accounts = (JSONArray) userPrincipals.get("accounts");
+        JSONArray accounts = (JSONArray) userPrincipals.get(ACCOUNTS_STR);
         JSONObject accountElements = (JSONObject) accounts.get(0);
 
-        credentials.put("userid", accountElements.get("accountId"));
-        JSONObject streamerInfo = (JSONObject) userPrincipals.get("streamerInfo");
-        credentials.put("token", streamerInfo.get("token"));
+        credentials.put("userid", accountElements.get(ACCOUNT_ID));
+        JSONObject streamerInfo = (JSONObject) userPrincipals.get(STREAMER_INFO);
+        credentials.put(TOKEN, streamerInfo.get(TOKEN));
         credentials.put("company", accountElements.get("company"));
         credentials.put("segment", accountElements.get("segment"));
         credentials.put("cddomain", accountElements.get("cddomain"));
@@ -302,10 +331,10 @@ public class Client {
         requests.put("service", "ADMIN");
         requests.put("command", "LOGIN");
         requests.put("requestid", 0);
-        requests.put("account", accountElements.get("accountId"));
+        requests.put("account", accountElements.get(ACCOUNT_ID));
         requests.put("source", streamerInfo.get("appId"));
 
-        parameters.put("token", streamerInfo.get("token"));
+        parameters.put(TOKEN, streamerInfo.get(TOKEN));
         parameters.put("version", "1.0");
 
         // timestamp 
@@ -344,14 +373,14 @@ public class Client {
     private String createLogoutRequest() { 
         HashMap<String, Object> requests = new HashMap<>();
 
-        JSONArray accounts = (JSONArray) userPrincipals.get("accounts");
+        JSONArray accounts = (JSONArray) userPrincipals.get(ACCOUNTS_STR);
         JSONObject accountElements = (JSONObject) accounts.get(0);
-        JSONObject streamerInfo = (JSONObject) userPrincipals.get("streamerInfo");
+        JSONObject streamerInfo = (JSONObject) userPrincipals.get(STREAMER_INFO);
 
         requests.put("service", "ADMIN");
         requests.put("requestid", 1);
         requests.put("command", "LOGOUT");
-        requests.put("account", accountElements.get("accountId") );
+        requests.put("account", accountElements.get(ACCOUNT_ID) );
         requests.put("source", streamerInfo.get("appId") );
 
         requests.put( "parameters", new JSONObject() );
@@ -372,7 +401,7 @@ public class Client {
     public void openStream() throws IOException, ParseException, DeploymentException, java.text.ParseException {
         try {
             // open websocket
-            JSONObject streamerInfo = (JSONObject) userPrincipals.get("streamerInfo");
+            JSONObject streamerInfo = (JSONObject) userPrincipals.get(STREAMER_INFO);
             final Stream clientEndPoint = new Stream(new URI("wss://" + (String) streamerInfo.get("streamerSocketUrl") + "/ws"));
 
 
@@ -388,10 +417,8 @@ public class Client {
             clientEndPoint.sendMessage(createLogoutRequest());
 
             // wait 5 seconds for messages from websocket
-            Thread.sleep(5000);
+            // Thread sleep 
 
-        } catch (InterruptedException ex) {
-            System.err.println("InterruptedException exception: " + ex.getMessage());
         } catch (URISyntaxException ex) {
             System.err.println("URISyntaxException exception: " + ex.getMessage());
         }
