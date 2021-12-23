@@ -402,6 +402,9 @@ public class PrimaryController {
         int n = Historical.getNumCandles();
         double maxRsi = 0.0;
         double minRsi = Double.POSITIVE_INFINITY;
+        double prevAvgGain = 0.0;
+        double prevAvgLoss = 0.0;
+       
         for ( int i = 0; i < n; i++ ) {
             if ( i < period ) {
                 minPeriod++;
@@ -411,23 +414,37 @@ public class PrimaryController {
             double avgGain = 0.0;
             double avgLoss = 0.0;
             for ( int j = 0; j < minPeriod; j++ ) {
-                double pnl = Historical.candles.get(i - j).getClose() - Historical.candles.get(i - j).getOpen();
-                pnl /= Historical.candles.get(i - j).getOpen();
+                double open = Historical.candles.get(i - j).getOpen();
+                double close = Historical.candles.get(i - j).getClose();
+                double pnl = close - open;
+                pnl = pnl / open;
                 if ( pnl > 0 ) {
                     avgGain += pnl;
                 } else { 
                     avgLoss += pnl;
                 }
             }
-            avgGain /= minPeriod;
-            avgLoss /= minPeriod;
+
+            // Average Gain = [(previous Average Gain) x 13 + current Gain] / 14.
+            // Average Loss = [(previous Average Loss) x 13 + current Loss] / 14.
+
+            if ( i != 0 ) {
+                avgGain = ((prevAvgGain) * 13 + avgGain) / 14;
+                avgLoss = ((prevAvgLoss) * 13 + avgLoss) / 14;
+            } else {
+                avgGain /= minPeriod;
+                avgLoss /= minPeriod;
+            }
+
+            prevAvgGain = avgGain;
+            prevAvgLoss = avgLoss;
     
             // step one 
             double relativeStrength = 0.0;
             if ( avgLoss != 0 ) {
                 relativeStrength = 100 - (100 / 1.0 + (avgGain / avgLoss));
             }
-            relativeStrength *= 0.01;
+            // relativeStrength *= 0.01;
 
             if ( relativeStrength > maxRsi ) {
                 maxRsi = relativeStrength;
@@ -444,16 +461,21 @@ public class PrimaryController {
         indicatorAxis.setUpperBound(maxRsi);
         indicatorChart.getData().add(rsiSeries);
         indicatorChart.setVisible(true);
+        indicatorChart.setMaxHeight(50);
+        chart.setChartBackgroundColor(indicatorChart);
+        volumeChart.setMaxHeight(481 - 169);
+        mainChart.setMaxHeight(481 - 130);
+        mainChart.setLegendVisible(false);
     }
 
     @FXML
     public void loadEquityCurveCSV() throws IOException {
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        this.priceSeries = new XYChart.Series<>();
 
         HashMap<String, String> balances = new HashMap<>();
 
-        Double minimumBalance = Double.POSITIVE_INFINITY;
-        Double maximumBalance = Double.NEGATIVE_INFINITY;
+        priceAxis.setLowerBound(1200);
+        priceAxis.setUpperBound(6000);
         try (BufferedReader br = new BufferedReader(new FileReader("chart.csv"))) {
             Boolean first = true;
             String line;
@@ -469,39 +491,29 @@ public class PrimaryController {
                 balances.put(values[0], values[1]);
                 Double balance = Double.parseDouble(values[1]);
 
-                if ( balance > maximumBalance ) {
-                    maximumBalance = balance;
-                }
-
-                if ( balance < minimumBalance ) {
-                    minimumBalance = balance;
-                }
-
                 System.out.println(balance);
-                series.getData().add(new XYChart.Data<>(values[0], balance));
+                priceSeries.getData().add(new XYChart.Data<>(values[0], balance));
             }
         }
-        priceAxis.setLowerBound(minimumBalance.intValue() - 100);
-        priceAxis.setUpperBound(maximumBalance.intValue() + 100);
 
-        series.setName("Equity Curve");
+        priceSeries.setName("Equity Curve");
+
+        mainChart.getData().add(priceSeries);
+        chart.setPriceLineColor(priceSeries);
         
-        mainChart.getData().add(series);
-        //series.getNode().setStyle("-fx-stroke: #405050;");
-        
-        Platform.runLater(()
-                -> {
+        // Platform.runLater(()
+        //         -> {
 
-            Set<Node> nodes = mainChart.lookupAll(".series" + 0);
-            for (Node n : nodes) {
-                n.setStyle("-fx-background-color: #405050;\n"
-                        + "    -fx-background-insets: 0, 2;\n"
-                        + "    -fx-background-radius: 5px;\n"
-                        + "    -fx-padding: 1px;");
-            }
+        //     Set<Node> nodes = mainChart.lookupAll(".series" + 0);
+        //     for (Node n : nodes) {
+        //         n.setStyle("-fx-background-color: #405050;\n"
+        //                 + "    -fx-background-insets: 0, 2;\n"
+        //                 + "    -fx-background-radius: 5px;\n"
+        //                 + "    -fx-padding: 1px;");
+        //     }
 
-            series.getNode().lookup(".chart-series-line").setStyle("-fx-stroke: black;");
-        });
+        //     series.getNode().lookup(".chart-series-line").setStyle("-fx-stroke: black;");
+        // });
 
         mainChart.axisSortingPolicyProperty();
         mainChart.setAnimated(false);// disable animation
