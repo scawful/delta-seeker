@@ -31,6 +31,10 @@ public class Chart {
         lineChart.lookup(CHARTPLOTBG).setStyle("-fx-background-color: transparent;");
         barChart.lookup(CHARTPLOTBG).setStyle("-fx-background-color: #30384b;");
     }
+
+    public void setChartBackgroundColor(LineChart<String, Number> newChart) {
+        newChart.lookup(CHARTPLOTBG).setStyle("-fx-background-color: #30384b;");
+    }
     
     public void setPriceLineColor(XYChart.Series<String, Number> priceSeries) {
         priceSeries.getNode().setStyle("-fx-stroke: #405050;");
