@@ -25,7 +25,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <VBox style="-fx-background-color: #1A2237;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.halext.deltaseeker.PrimaryController">
    <children>
       <MenuBar fx:id="menuBar" nodeOrientation="LEFT_TO_RIGHT" style="-fx-padding: 2.0;" stylesheets="@darkSky.css">
@@ -54,9 +53,9 @@
           </Menu>
         </menus>
       </MenuBar>
-      <HBox prefHeight="530.0" prefWidth="1125.0" style="-fx-background-color: #1A2237;">
+      <HBox style="-fx-background-color: #1A2237;">
          <children>
-            <TabPane prefHeight="530.0" prefWidth="302.0" style="-fx-border-color: #9DAAD9 #9DAAD9;" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE">
+            <TabPane prefHeight="530.0" prefWidth="310.0" style="-fx-border-color: #9DAAD9 #9DAAD9;" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE">
               <tabs>
                 <Tab text="Watchlist">
                   <content>
@@ -139,12 +138,12 @@
                                     <NumberAxis fx:id="priceAxis" autoRanging="false" lowerBound="132.0" side="LEFT" tickLabelFill="WHITE" upperBound="164.0" />
                                  </yAxis>
                               </LineChart>
-                              <LineChart fx:id="indicatorChart" animated="false" createSymbols="false" layoutX="44.0" layoutY="16.0" legendVisible="false" nodeOrientation="RIGHT_TO_LEFT" prefHeight="93.0" prefWidth="800.0" visible="false">
+                              <LineChart fx:id="indicatorChart" alternativeRowFillVisible="false" animated="false" createSymbols="false" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" layoutX="27.0" layoutY="337.0" legendVisible="false" nodeOrientation="RIGHT_TO_LEFT" prefHeight="100.0" prefWidth="800.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false" visible="false">
                                 <xAxis>
-                                  <CategoryAxis animated="false" side="BOTTOM" tickLabelsVisible="false" visible="false" />
+                                  <CategoryAxis animated="false" side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" visible="false" />
                                 </xAxis>
                                 <yAxis>
-                                  <NumberAxis fx:id="indicatorAxis" animated="false" autoRanging="false" lowerBound="-1.0" side="LEFT" upperBound="1.0" />
+                                  <NumberAxis fx:id="indicatorAxis" animated="false" autoRanging="false" minorTickCount="10" side="LEFT" />
                                 </yAxis>
                               </LineChart>
                            </children>
