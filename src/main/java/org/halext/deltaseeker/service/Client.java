@@ -61,7 +61,7 @@ public class Client {
      * @throws IOException
      */
     public void retrieveKeyFile() throws IOException {
-        String apiFileLocation = "/Users/scawful/Code/Java/delta-seeker/src/api.txt";
+        String apiFileLocation = "C:/Users/starw/Code/Java/deltaseeker/src/api.txt";
         try ( BufferedReader apiReader = new BufferedReader( new FileReader(apiFileLocation) )) {
             TD_API_KEY = apiReader.readLine();
             TD_REFRESH_TOKEN = apiReader.readLine();
@@ -172,7 +172,7 @@ public class Client {
      * GET request with use of access token 
      * 
      * @param url
-     * @return
+     * @return JSONArray
      * @throws IOException
      * @throws ParseException
      */
@@ -195,6 +195,35 @@ public class Client {
         JSONArray ja = (JSONArray) response;
         in.close();
         return ja;
+    }
+
+        /**
+     * GET request with use of access token 
+     * 
+     * @param url
+     * @return JSONObject
+     * @throws IOException
+     * @throws ParseException
+     */
+    private JSONObject sendAuthorizedObjectRequest( String url ) throws IOException, ParseException {
+        URL u = new URL(url);
+        HttpURLConnection connection = (HttpURLConnection) u.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty(USER_AGENT, DELTA_SEEKER);
+        connection.setRequestProperty(ACCEPT_LANGUAGE, EN_US);
+        connection.addRequestProperty("Authorization", "Bearer " + ACCESS_TOKEN);
+
+        try {
+            System.out.println("Authorized Request Response Code: " + connection.getResponseCode() );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        Object response = new JSONParser().parse(in);
+        JSONObject jo = (JSONObject) response;
+        in.close();
+        return jo;
     }
 
 
@@ -295,6 +324,13 @@ public class Client {
         return sendAuthorizedRequest(url);
     }
 
+    /**
+     * GET watchlist for a single account
+     * 
+     * @return
+     * @throws IOException
+     * @throws ParseException
+     */
     public JSONArray getWatchlistSingleAccount() throws IOException, ParseException {
         getUserPrincipals();
         JSONArray accounts = (JSONArray) userPrincipals.get(ACCOUNTS_STR);
@@ -302,6 +338,15 @@ public class Client {
         String accountId = (String) accountElements.get(ACCOUNT_ID);
         String url = "https://api.tdameritrade.com/v1/accounts/" + accountId + "/watchlists";
         return sendAuthorizedRequest(url);
+    }
+
+    public JSONObject getAccountData() throws IOException, ParseException {
+        getUserPrincipals();
+        JSONArray accounts = (JSONArray) userPrincipals.get(ACCOUNTS_STR);
+        JSONObject accountElements = (JSONObject) accounts.get(0);
+        String accountId = (String) accountElements.get(ACCOUNT_ID);
+        String url = "https://api.tdameritrade.com/v1/accounts/" + accountId + "?fields=positions";
+        return sendAuthorizedObjectRequest(url);
     }
 
     /**
