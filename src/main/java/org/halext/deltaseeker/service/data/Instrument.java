@@ -2,6 +2,8 @@ package org.halext.deltaseeker.service.data;
 
 import java.util.HashMap;
 
+import javafx.beans.property.SimpleStringProperty;
+
 public class Instrument {
 
     private HashMap<String, Object> fundamentalData = new HashMap<>();
@@ -18,13 +20,12 @@ public class Instrument {
         "OPTION", "UNKNOWN"
     };
 
-    private String cusip;
-    private String symbol;
-    private String description;
-    private String exchange;
-    private String assetType; 
+    private SimpleStringProperty cusip;
+    private SimpleStringProperty symbol;
+    private SimpleStringProperty description;
+    private SimpleStringProperty exchange;
+    private SimpleStringProperty assetType; 
 
-    
     public Instrument() {
 
     }
@@ -34,43 +35,43 @@ public class Instrument {
     }
 
     public String getCusip() {
-        return this.cusip;
+        return this.cusip.get();
     }
 
     public void setCusip(String cusip) {
-        this.cusip = cusip;
+        this.cusip = new SimpleStringProperty(cusip);
     }
 
     public String getSymbol() {
-        return this.symbol;
+        return this.symbol.get();
     }
 
     public void setSymbol(String s) {
-        symbol = s;
+        symbol = new SimpleStringProperty(s);
     }
 
     public String getDescription() {
-        return this.description;
+        return this.description.get();
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        this.description = new SimpleStringProperty(description);
     }
 
     public String getExchange() {
-        return this.exchange;
+        return this.exchange.get();
     }
 
     public void setExchange(String exchange) {
-        this.exchange = exchange;
+        this.exchange = new SimpleStringProperty(exchange);
     }
 
     public String getAssetType() {
-        return this.assetType;
+        return this.assetType.get();
     }
 
     public void setAssetType(String assetType) {
-        this.assetType = assetType;
+        this.assetType = new SimpleStringProperty(assetType);
     }
 
     public HashMap<String,Object> getFundamentalData() {
