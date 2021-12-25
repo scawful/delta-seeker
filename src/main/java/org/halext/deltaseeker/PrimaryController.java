@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import javax.websocket.DeploymentException;
 
@@ -15,16 +14,15 @@ import org.halext.deltaseeker.service.Model;
 import org.halext.deltaseeker.service.Parser;
 import org.halext.deltaseeker.service.data.Historical;
 import org.halext.deltaseeker.service.data.Order;
+import org.halext.deltaseeker.service.data.Position;
 import org.halext.deltaseeker.service.data.Watchlist;
 import org.halext.deltaseeker.service.data.Watchlist.Symbol;
 import org.halext.deltaseeker.service.graphics.Chart;
 import org.json.simple.parser.ParseException;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -67,6 +65,7 @@ public class PrimaryController {
     @FXML Label modelOutput;
     @FXML TableView<Order> ordersTable;
     @FXML TableView<Symbol> watchlistTable;
+    @FXML TableView<Position> positionsTable;
     @FXML ComboBox<String> watchlistComboBox;
     @FXML TextField maxIterationsInput;
     @FXML TextField maxErrorInput;
@@ -213,6 +212,7 @@ public class PrimaryController {
              }); 
 
              buildAccountOrders();
+             buildAccountPositions();
             
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -271,6 +271,33 @@ public class PrimaryController {
         }
 
         ordersTable.getColumns().addAll(symbolColumn, assetTypeColumn, orderTypeColumn, priceColumn, quantityColumn, enteredTimeColumn); 
+    }
+
+    @FXML
+    @SuppressWarnings("unchecked")
+    public void buildAccountPositions() {
+        TableColumn<Position, String> symbolColumn = new TableColumn<>("Symbol");
+        TableColumn<Position, String> assetTypeColumn = new TableColumn<>("Asset Type");
+        TableColumn<Position, String> avgPriceColumn = new TableColumn<>("Average Price");
+        TableColumn<Position, String> quantityColumn = new TableColumn<>("Quantity");
+        TableColumn<Position, String> currentDayProfitLossColumn = new TableColumn<>("P/L Day");
+        TableColumn<Position, String> currentDayProfitLossPercentageColumn = new TableColumn<>("P/L %");
+
+
+        symbolColumn.setCellValueFactory(new PropertyValueFactory<Position, String>("symbol"));
+        assetTypeColumn.setCellValueFactory(new PropertyValueFactory<Position, String>("assetType"));
+        avgPriceColumn.setCellValueFactory(new PropertyValueFactory<Position, String>("averagePrice"));
+        quantityColumn.setCellValueFactory(new PropertyValueFactory<Position, String>("longQuantity"));
+        currentDayProfitLossColumn.setCellValueFactory(new PropertyValueFactory<Position, String>("currentDayProfitLoss"));
+        currentDayProfitLossPercentageColumn.setCellValueFactory(new PropertyValueFactory<Position, String>("currentDayProfitLossPercentage"));
+
+        try {
+            positionsTable.setItems(FXCollections.observableArrayList( parser.parsePositions( client.getAccountData() )));
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+
+        positionsTable.getColumns().addAll(symbolColumn, assetTypeColumn, avgPriceColumn, quantityColumn, currentDayProfitLossColumn, currentDayProfitLossPercentageColumn); 
     }
 
     @FXML
