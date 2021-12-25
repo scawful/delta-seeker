@@ -1,5 +1,8 @@
 package org.halext.deltaseeker.service.data;
 
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleStringProperty;
+
 public class Position {
 //     "positions": [
 //     {
@@ -16,17 +19,64 @@ public class Position {
 //     }
 //   ],
 
-    private double averagePrice;
-    private double currentDayProfitLoss;
-    private double currentDayProfitLossPercentage;
-    private double longQuantity;
-    private double settledLongQuantity;
-    private double settledShortQuantity;
-    private double agedQuantity;
-    private double marketValue;
+    private SimpleDoubleProperty averagePrice;
+    private SimpleDoubleProperty currentDayProfitLoss;
+    private SimpleDoubleProperty currentDayProfitLossPercentage;
+    private SimpleDoubleProperty longQuantity;
+    private SimpleDoubleProperty settledLongQuantity;
+    private SimpleDoubleProperty settledShortQuantity;
+    private SimpleDoubleProperty agedQuantity;
+    private SimpleDoubleProperty marketValue;
+
+    private SimpleStringProperty cusip;
+    private SimpleStringProperty symbol;
+
+    public String getCusip() {
+        return this.cusip.get();
+    }
+
+    public void setCusip(String cusip) {
+        this.cusip = new SimpleStringProperty(cusip);
+    }
+
+    public String getSymbol() {
+        return this.symbol.get();
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = new SimpleStringProperty(symbol);
+    }
+
+    public String getDescription() {
+        return this.description.get();
+    }
+
+    public void setDescription(String description) {
+        this.description = new SimpleStringProperty(description);
+    }
+
+    public String getExchange() {
+        return this.exchange.get();
+    }
+
+    public void setExchange(String exchange) {
+        this.exchange = new SimpleStringProperty(exchange);
+    }
+
+    public String getAssetType() {
+        return this.assetType.get();
+    }
+
+    public void setAssetType(String assetType) {
+        this.assetType = new SimpleStringProperty(assetType);
+    }
+
+    private SimpleStringProperty description;
+    private SimpleStringProperty exchange;
+    private SimpleStringProperty assetType; 
 
     private Instrument instrument;
-    private double shortQuantity;
+    private SimpleDoubleProperty shortQuantity;
 
     public Instrument getInstrument() {
         return this.instrument;
@@ -34,78 +84,80 @@ public class Position {
 
     public void setInstrument(Instrument instrument) {
         this.instrument = instrument;
+        this.symbol = new SimpleStringProperty(instrument.getSymbol());
+        this.assetType = new SimpleStringProperty(instrument.getAssetType());
     }
 
     public double getShortQuantity() {
-        return this.shortQuantity;
+        return this.shortQuantity.get();
     }
 
     public void setShortQuantity(double shortQuantity) {
-        this.shortQuantity = shortQuantity;
+        this.shortQuantity = new SimpleDoubleProperty(shortQuantity);
     }
 
     public double getAveragePrice() {
-        return this.averagePrice;
+        return this.averagePrice.get();
     }
 
     public void setAveragePrice(double averagePrice) {
-        this.averagePrice = averagePrice;
+        this.averagePrice = new SimpleDoubleProperty(averagePrice);
     }
 
     public double getCurrentDayProfitLoss() {
-        return this.currentDayProfitLoss;
+        return this.currentDayProfitLoss.get();
     }
 
     public void setCurrentDayProfitLoss(double currentDayProfitLoss) {
-        this.currentDayProfitLoss = currentDayProfitLoss;
+        this.currentDayProfitLoss = new SimpleDoubleProperty(currentDayProfitLoss);
     }
 
     public double getCurrentDayProfitLossPercentage() {
-        return this.currentDayProfitLossPercentage;
+        return this.currentDayProfitLossPercentage.get();
     }
 
     public void setCurrentDayProfitLossPercentage(double currentDayProfitLossPercentage) {
-        this.currentDayProfitLossPercentage = currentDayProfitLossPercentage;
+        this.currentDayProfitLossPercentage = new SimpleDoubleProperty(currentDayProfitLossPercentage);
     }
 
     public double getLongQuantity() {
-        return this.longQuantity;
+        return this.longQuantity.get();
     }
 
     public void setLongQuantity(double longQuantity) {
-        this.longQuantity = longQuantity;
+        this.longQuantity = new SimpleDoubleProperty(longQuantity);
     }
 
     public double getSettledLongQuantity() {
-        return this.settledLongQuantity;
+        return this.settledLongQuantity.get();
     }
 
     public void setSettledLongQuantity(double settledLongQuantity) {
-        this.settledLongQuantity = settledLongQuantity;
+        this.settledLongQuantity = new SimpleDoubleProperty(settledLongQuantity);
     }
 
     public double getSettledShortQuantity() {
-        return this.settledShortQuantity;
+        return this.settledShortQuantity.get();
     }
 
     public void setSettledShortQuantity(double settledShortQuantity) {
-        this.settledShortQuantity = settledShortQuantity;
+        this.settledShortQuantity = new SimpleDoubleProperty(settledShortQuantity);
     }
 
     public double getAgedQuantity() {
-        return this.agedQuantity;
+        return this.agedQuantity.get();
     }
 
     public void setAgedQuantity(double agedQuantity) {
-        this.agedQuantity = agedQuantity;
+        this.agedQuantity = new SimpleDoubleProperty(agedQuantity);
     }
 
     public double getMarketValue() {
-        return this.marketValue;
+        return this.marketValue.get();
     }
 
     public void setMarketValue(double marketValue) {
-        this.marketValue = marketValue;
+        this.marketValue = new SimpleDoubleProperty(marketValue);
     }
 
 }
