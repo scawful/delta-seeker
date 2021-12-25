@@ -1,6 +1,9 @@
 package org.halext.deltaseeker.service;
 
 import org.json.simple.JSONObject;
+
+import javafx.beans.property.SimpleDoubleProperty;
+
 import org.json.simple.JSONArray;
 
 import java.util.ArrayList;
@@ -12,6 +15,7 @@ import org.halext.deltaseeker.service.data.Quote;
 import org.halext.deltaseeker.service.data.Historical;
 import org.halext.deltaseeker.service.data.Instrument;
 import org.halext.deltaseeker.service.data.Order;
+import org.halext.deltaseeker.service.data.Position;
 import org.halext.deltaseeker.service.data.Watchlist;
 
 public class Parser {
@@ -55,15 +59,60 @@ public class Parser {
      * @param jo
      */
     public void parseInstrumentData( JSONObject jo, String ticker ) {
-
+        Instrument instrument = new Instrument();
         JSONObject masterObject = (JSONObject) jo.get(ticker);
         JSONObject fundamentalObject = (JSONObject) masterObject.get("fundamental");
 
-        Instrument.setSymbol((String) fundamentalObject.remove("symbol"));
+        instrument.setSymbol((String) fundamentalObject.remove("symbol"));
 
         for (Object key : fundamentalObject.keySet()) {
-            Instrument.insertFundamental((String) key, fundamentalObject.get(key));
+            instrument.insertFundamental((String) key, fundamentalObject.get(key));
         }
+    }
+
+    public Instrument parseIndividualInstrument( JSONObject jo ) {
+        Instrument instrument = new Instrument();
+        instrument.setSymbol((String) jo.get("symbol"));
+        instrument.setAssetType((String) jo.get("assetType"));
+        instrument.setCusip((String) jo.get("cusip"));
+        instrument.setDescription((String) jo.get("description"));
+    // Equity:
+    // {
+    //     "assetType": "'EQUITY' or 'OPTION' or 'INDEX' or 'MUTUAL_FUND' or 'CASH_EQUIVALENT' or 'FIXED_INCOME' or 'CURRENCY'",
+    //     "cusip": "string",
+    //     "symbol": "string",
+    //     "description": "string"
+    // }
+    
+    // CashEquivalent:
+    // {
+    //     "assetType": "'EQUITY' or 'OPTION' or 'INDEX' or 'MUTUAL_FUND' or 'CASH_EQUIVALENT' or 'FIXED_INCOME' or 'CURRENCY'",
+    //     "cusip": "string",
+    //     "symbol": "string",
+    //     "description": "string",
+    //     "type": "'SAVINGS' or 'MONEY_MARKET_FUND'"
+    // }
+        
+    // Option:
+    // {
+    //     "assetType": "'EQUITY' or 'OPTION' or 'INDEX' or 'MUTUAL_FUND' or 'CASH_EQUIVALENT' or 'FIXED_INCOME' or 'CURRENCY'",
+    //     "cusip": "string",
+    //     "symbol": "string",
+    //     "description": "string",
+    //     "type": "'VANILLA' or 'BINARY' or 'BARRIER'",
+    //     "putCall": "'PUT' or 'CALL'",
+    //     "underlyingSymbol": "string",
+    //     "optionMultiplier": 0,
+    //     "optionDeliverables": [
+    //     {
+    //         "symbol": "string",
+    //         "deliverableUnits": 0,
+    //         "currencyType": "'USD' or 'CAD' or 'EUR' or 'JPY'",
+    //         "assetType": "'EQUITY' or 'OPTION' or 'INDEX' or 'MUTUAL_FUND' or 'CASH_EQUIVALENT' or 'FIXED_INCOME' or 'CURRENCY'"
+    //     }
+    //     ]
+    // }
+        return instrument;
     }
 
     public void parseQuoteData( JSONObject jo ) {
@@ -108,6 +157,31 @@ public class Parser {
         }
         
         return orders;
+    }
+
+    public List<Position> parsePositions( JSONObject jo ) {
+        ArrayList<Position> positions = new ArrayList<>();
+
+        // Account:
+        // {
+        //     "securitiesAccount": "The type <securitiesAccount> has the following subclasses [MarginAccount, CashAccount] descriptions are listed below"
+        // }
+
+        JSONObject account = (JSONObject) jo.get("securitiesAccount");
+
+        JSONArray positionsArray = (JSONArray) account.get("positions");
+        for ( int i = 0; i < positionsArray.size(); i++ ) {
+            Position newPosition = new Position();
+            JSONObject positionsObject = (JSONObject) positionsArray.get(i);
+            newPosition.setAveragePrice((double) positionsObject.get("averagePrice"));
+            newPosition.setCurrentDayProfitLoss((double) positionsObject.get("currentDayProfitLoss"));
+            newPosition.setCurrentDayProfitLossPercentage((double) positionsObject.get("currentDayProfitLossPercentage"));
+            newPosition.setLongQuantity((double) positionsObject.get("longQuantity"));
+            JSONObject instrumentJSON = (JSONObject) positionsObject.get("instrument");
+            newPosition.setInstrument(parseIndividualInstrument(instrumentJSON));
+            positions.add(newPosition);
+        }
+        return positions;
     }
 
     public double getVolatility( JSONObject jo, String ticker ) {
