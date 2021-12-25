@@ -4,7 +4,9 @@ import java.util.HashMap;
 
 public class Instrument {
 
-    private String[] instrumentTypes = { 
+    private HashMap<String, Object> fundamentalData = new HashMap<>();
+
+    private final String[] instrumentTypes = { 
         "EQUITY", 
         "ETF", 
         "FOREX", 
@@ -16,27 +18,74 @@ public class Instrument {
         "OPTION", "UNKNOWN"
     };
 
-    private static String cusip;
-    private static String symbol;
-    private static String description;
-    private static String exchange;
-    private static String assetType; 
+    private String cusip;
+    private String symbol;
+    private String description;
+    private String exchange;
+    private String assetType; 
 
-    private static HashMap<String, Object> fundamentalData = new HashMap<>();
-
-    private Instrument() {
+    
+    public Instrument() {
 
     }
 
-    public static void setSymbol(String s) {
+    public String[] getInstrumentTypes() {
+        return this.instrumentTypes;
+    }
+
+    public String getCusip() {
+        return this.cusip;
+    }
+
+    public void setCusip(String cusip) {
+        this.cusip = cusip;
+    }
+
+    public String getSymbol() {
+        return this.symbol;
+    }
+
+    public void setSymbol(String s) {
         symbol = s;
     }
 
-    public static void insertFundamental(String key, Object object) {
+    public String getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getExchange() {
+        return this.exchange;
+    }
+
+    public void setExchange(String exchange) {
+        this.exchange = exchange;
+    }
+
+    public String getAssetType() {
+        return this.assetType;
+    }
+
+    public void setAssetType(String assetType) {
+        this.assetType = assetType;
+    }
+
+    public HashMap<String,Object> getFundamentalData() {
+        return this.fundamentalData;
+    }
+
+    public void setFundamentalData(HashMap<String,Object> fundamentalData) {
+        this.fundamentalData = fundamentalData;
+    }
+
+    public void insertFundamental(String key, Object object) {
         fundamentalData.put(key, object);
     }
 
-    public static Object getFundamental(String key) {
+    public Object getFundamental(String key) {
         return fundamentalData.get(key);
     }
 
