@@ -14,6 +14,7 @@ import java.util.List;
 import org.halext.deltaseeker.service.data.Quote;
 import org.halext.deltaseeker.service.data.Historical;
 import org.halext.deltaseeker.service.data.Instrument;
+import org.halext.deltaseeker.service.data.Mover;
 import org.halext.deltaseeker.service.data.Order;
 import org.halext.deltaseeker.service.data.Position;
 import org.halext.deltaseeker.service.data.Watchlist;
@@ -182,6 +183,12 @@ public class Parser {
             positions.add(newPosition);
         }
         return positions;
+    }
+
+    public List<Mover> parseMovers( JSONArray ja ) {
+        ArrayList<Mover> movers = new ArrayList<>();
+
+        return movers;
     }
 
     public double getVolatility( JSONObject jo, String ticker ) {
