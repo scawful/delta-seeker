@@ -1,7 +1,5 @@
 package org.halext.deltaseeker.service.graphics;
 
-import java.util.Set;
-
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.chart.BarChart;
