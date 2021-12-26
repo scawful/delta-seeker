@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import javax.websocket.DeploymentException;
 
@@ -14,22 +15,31 @@ import org.halext.deltaseeker.service.Model;
 import org.halext.deltaseeker.service.Parser;
 import org.halext.deltaseeker.service.data.Historical;
 import org.halext.deltaseeker.service.data.Order;
+import org.halext.deltaseeker.service.data.OrderBook;
 import org.halext.deltaseeker.service.data.Position;
 import org.halext.deltaseeker.service.data.Watchlist;
 import org.halext.deltaseeker.service.data.Watchlist.Symbol;
 import org.halext.deltaseeker.service.graphics.Chart;
 import org.json.simple.parser.ParseException;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
@@ -37,6 +47,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
@@ -61,16 +73,34 @@ public class PrimaryController {
     @FXML LineChart<String, Number> indicatorChart;
     @FXML NumberAxis priceAxis; 
     @FXML NumberAxis indicatorAxis;
+    @FXML CategoryAxis dateCategoryAxis;
     @FXML TextField tickerInput;
     @FXML Label modelOutput;
+
     @FXML TableView<Order> ordersTable;
     @FXML TableView<Symbol> watchlistTable;
     @FXML TableView<Position> positionsTable;
+    @FXML TableView<OrderBook> orderBookTable;
+
+    @FXML ComboBox<String> orderBookComboBox;
     @FXML ComboBox<String> watchlistComboBox;
+    @FXML ComboBox<String> quoteComboBox;
+    @FXML ComboBox<String> timeIntervalComboBox;
+    @FXML ComboBox<String> timeUnitComboxBox;
+    @FXML ComboBox<String> frequencyIntervalComboBox;
+    @FXML ComboBox<String> frequencyUnitComboBox;
+    @FXML DatePicker startDatePicker;
+    @FXML DatePicker endDatePicker;
+    @FXML CheckBox extendedHoursCheckBox;
+
     @FXML TextField maxIterationsInput;
     @FXML TextField maxErrorInput;
     @FXML TextField learningRateInput;
     @FXML TextField movingAveragePeriod;
+
+    @FXML Canvas chartCanvas;
+    @FXML GraphicsContext graphicsContext;
+
     @FXML ListView<Object> transferFunctionTypes;
     @FXML ListView<Object> networkTypes;
     @FXML MenuBar menuBar;
@@ -182,6 +212,123 @@ public class PrimaryController {
         networkTypes.getItems().setAll(FXCollections.observableArrayList(networkTypeArray));
     }
 
+    private void initPriceHistoryParameters() {
+        // day, month, year, or ytd
+        ArrayList<String> periodType = new ArrayList<>();
+        periodType.add("day");
+        periodType.add("month");
+        periodType.add("year");
+        periodType.add("ytd");
+        timeIntervalComboBox.setItems(FXCollections.observableArrayList(periodType));
+
+        // day: 1, 2, 3, 4, 5, 10*
+        // month: 1*, 2, 3, 6
+        // year: 1*, 2, 3, 5, 10, 15, 20
+        // ytd: 1*
+        ArrayList<String> period = new ArrayList<>();
+        period.add("1");
+        period.add("2");
+        period.add("3");
+        period.add("4");
+        period.add("5");
+        period.add("6");
+        period.add("10");
+        period.add("15");
+        period.add("20");
+        timeUnitComboxBox.setItems(FXCollections.observableArrayList(period));
+
+        // day: minute*
+        // month: daily, weekly*
+        // year: daily, weekly, monthly*
+        // ytd: daily, weekly*
+        ArrayList<String> frequencyType = new ArrayList<>();
+        frequencyType.add("minute");
+        frequencyType.add("daily");
+        frequencyType.add("weekly");
+        frequencyType.add("monthly");
+        frequencyIntervalComboBox.setItems(FXCollections.observableArrayList(frequencyType));
+
+        // minute: 1*, 5, 10, 15, 30
+        // daily: 1*
+        // weekly: 1*
+        // monthly: 1*
+        ArrayList<String> frequency = new ArrayList<>();
+        frequency.add("1");
+        frequency.add("5");
+        frequency.add("10");
+        frequency.add("15");
+        frequency.add("30");
+        frequencyUnitComboBox.setItems(FXCollections.observableArrayList(frequency));
+
+        watchlistComboBox.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
+            int position = timeIntervalComboBox.getSelectionModel().getSelectedIndex();
+            
+         }); 
+
+        // create a event handler
+        EventHandler<ActionEvent> event = new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e)
+            {
+                graphicsContext.setStroke( movingAverageColorPicker.getValue() );
+            }
+        };
+    
+        // set listener
+        movingAverageColorPicker.setOnAction(event);
+    }
+
+    private void initCanvas() {
+        this.graphicsContext = this.chartCanvas.getGraphicsContext2D();
+
+        // graphicsContext.setFill(Color.LIGHTGRAY);
+        // graphicsContext.setLineWidth(5);
+
+        // graphicsContext.fill();
+        // graphicsContext.strokeRect(
+        //         0,              //x of the upper left corner
+        //         0,              //y of the upper left corner
+        //         canvasWidth,    //width of the rectangle
+        //         canvasHeight);  //height of the rectangle
+
+        graphicsContext.setFill(Color.RED);
+        graphicsContext.setStroke( movingAverageColorPicker.getValue() );
+        graphicsContext.setLineWidth(2);
+        
+        chartCanvas.addEventHandler(MouseEvent.MOUSE_PRESSED, 
+                new EventHandler<MouseEvent>(){
+            @Override
+            public void handle(MouseEvent event) {
+                graphicsContext.beginPath();
+                graphicsContext.moveTo(event.getX(), event.getY());
+                graphicsContext.stroke();
+
+            }
+        });
+
+        chartCanvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, 
+                new EventHandler<MouseEvent>(){
+            @Override
+            public void handle(MouseEvent event) {
+                graphicsContext.lineTo(event.getX(), event.getY());
+                graphicsContext.stroke();
+                // graphicsContext.closePath();
+                // graphicsContext.beginPath();
+                graphicsContext.moveTo(event.getX(), event.getY());
+            }
+        });
+
+        chartCanvas.addEventHandler(MouseEvent.MOUSE_RELEASED, 
+                new EventHandler<MouseEvent>(){
+            @Override
+            public void handle(MouseEvent event) {
+                graphicsContext.lineTo(event.getX(), event.getY());
+                graphicsContext.stroke();
+                graphicsContext.closePath();
+            }
+        });
+
+    }
+
     //----------------------------------------------------------------------------------------------------
     //
     //  Primary Controller Entry
@@ -196,6 +343,8 @@ public class PrimaryController {
 
         initTransferTypes();
         initNetworkTypes();
+        initPriceHistoryParameters();
+        initCanvas();
         try {
             client.retrieveKeyFile();
             watchlists = parser.parseWatchlistData( client.getWatchlistSingleAccount() );   
@@ -211,13 +360,36 @@ public class PrimaryController {
                 System.out.println("clicked on " + watchlistComboBox.getSelectionModel().getSelectedItem());
              }); 
 
-             buildAccountOrders();
-             buildAccountPositions();
+            ObservableList<String> books = FXCollections.observableArrayList();
+            books.add("NASDAQ");
+            books.add("OPTIONS");
+            books.add("FUTURES");
+            books.add("FUTURES_OPTIONS");
+            books.add("FOREX");
+            books.add("LISTED");
+            orderBookComboBox.setItems(books);
+
+            ObservableList<String> quotes = FXCollections.observableArrayList();
+            quotes.add("EQUITIES");
+            quotes.add("OPTIONS");
+            quotes.add("FOREX");
+            quotes.add("FUTURES_OPTIONS");
+            quoteComboBox.setItems(quotes);
+
+            buildAccountOrders();
+            buildAccountPositions();
             
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
     }
+
+
+    //----------------------------------------------------------------------------------------------------
+    //
+    //  Data Builder Functions 
+    //
+    //----------------------------------------------------------------------------------------------------
 
     @FXML
     @SuppressWarnings("unchecked")
@@ -301,6 +473,18 @@ public class PrimaryController {
     }
 
     @FXML
+    public void buildOrderBook() {
+        
+    }
+
+
+    //----------------------------------------------------------------------------------------------------
+    //
+    //  
+    //
+    //----------------------------------------------------------------------------------------------------
+
+    @FXML
     public void selectItem() throws ParseException {
         // check the table's selected item and get selected item
         if (watchlistTable.getSelectionModel().getSelectedItem() != null) {
@@ -308,7 +492,12 @@ public class PrimaryController {
             Model pricePredictionModel = new Model();
             try {
                 pricePredictionModel.setTransferFunctionType(transferFunctionType);
-                pricePredictionModel.createPriceHistory( symbol.getSymbol() );
+                pricePredictionModel.createPriceHistory(symbol.getSymbol(), 
+                                                        timeIntervalComboBox.getSelectionModel().getSelectedItem(),
+                                                        timeUnitComboxBox.getSelectionModel().getSelectedItem(),
+                                                        frequencyIntervalComboBox.getSelectionModel().getSelectedItem(),
+                                                        frequencyUnitComboBox.getSelectionModel().getSelectedItem(),
+                                                        true);
                 pricePredictionModel.loadDataSet(buildInputParameters(), buildOutputParameters(), 0);
                 pricePredictionModel.trainNetwork(Integer.parseInt(maxIterationsInput.getText()), 
                                                   Double.parseDouble(maxErrorInput.getText()),  
@@ -338,6 +527,7 @@ public class PrimaryController {
         Double maxHigh = Historical.getMaxHigh();
         priceAxis.setLowerBound(minLow.intValue() - 1);
         priceAxis.setUpperBound(maxHigh.intValue() + 1);
+        priceAxis.setTickUnit((maxHigh.intValue() - minLow.intValue()) / 10);
         priceSeries.setName(ticker);
         for ( int i = 0; i < Historical.getNumCandles(); i++ )
         {
@@ -497,12 +687,11 @@ public class PrimaryController {
 
     @FXML
     public void loadEquityCurveCSV() throws IOException {
-        this.priceSeries = new XYChart.Series<>();
-
-        HashMap<String, String> balances = new HashMap<>();
-
+        this.priceSeries = new XYChart.Series<String, Number>();
         priceAxis.setLowerBound(1200);
         priceAxis.setUpperBound(6000);
+        priceAxis.setTickUnit((6000 - 1200) / 10);
+        priceSeries.setName("Equity Curve");
         try (BufferedReader br = new BufferedReader(new FileReader("chart.csv"))) {
             Boolean first = true;
             String line;
@@ -515,7 +704,6 @@ public class PrimaryController {
                     first = false;
                 }
                 
-                balances.put(values[0], values[1]);
                 Double balance = Double.parseDouble(values[1]);
 
                 System.out.println(balance);
@@ -523,27 +711,27 @@ public class PrimaryController {
             }
         }
 
-        priceSeries.setName("Equity Curve");
 
         mainChart.getData().add(priceSeries);
         chart.setPriceLineColor(priceSeries);
         
-        // Platform.runLater(()
-        //         -> {
+        Platform.runLater(()
+                -> {
 
-        //     Set<Node> nodes = mainChart.lookupAll(".series" + 0);
-        //     for (Node n : nodes) {
-        //         n.setStyle("-fx-background-color: #405050;\n"
-        //                 + "    -fx-background-insets: 0, 2;\n"
-        //                 + "    -fx-background-radius: 5px;\n"
-        //                 + "    -fx-padding: 1px;");
-        //     }
+            Set<Node> nodes = mainChart.lookupAll(".series" + 0);
+            for (Node n : nodes) {
+                n.setStyle("-fx-background-color: #b6bcd1;\n"
+                        + "    -fx-background-insets: 0, 2;\n"
+                        + "    -fx-background-radius: 5px;\n"
+                        + "    -fx-padding: 1px;");
+            }
 
-        //     series.getNode().lookup(".chart-series-line").setStyle("-fx-stroke: black;");
-        // });
+            priceSeries.getNode().lookup(".chart-series-line").setStyle("-fx-stroke: #9DAAD9;");
+        });
 
         mainChart.axisSortingPolicyProperty();
         mainChart.setAnimated(false);// disable animation
+
     }
 
 
@@ -551,7 +739,12 @@ public class PrimaryController {
     private void loadInstrument() throws IOException, ParseException {
         Model pricePredictionModel = new Model();
         pricePredictionModel.setTransferFunctionType(transferFunctionType);
-        pricePredictionModel.createPriceHistory( tickerInput.getText() );
+        pricePredictionModel.createPriceHistory(tickerInput.getText(),
+                                                timeIntervalComboBox.getSelectionModel().getSelectedItem(),
+                                                timeUnitComboxBox.getSelectionModel().getSelectedItem(),
+                                                frequencyIntervalComboBox.getSelectionModel().getSelectedItem(),
+                                                frequencyUnitComboBox.getSelectionModel().getSelectedItem(), 
+                                                true);
         pricePredictionModel.loadDataSet(buildInputParameters(), buildOutputParameters(), 0);
         pricePredictionModel.trainNetwork(Integer.parseInt(maxIterationsInput.getText()), 
                                           Double.parseDouble(maxErrorInput.getText()),  
@@ -571,5 +764,10 @@ public class PrimaryController {
     @FXML
     private void startStreamingSession() throws IOException, ParseException, DeploymentException, java.text.ParseException {
         client.openStream();
+    }
+
+    @FXML
+    private void clearCanvas() {
+        this.graphicsContext.clearRect(0, 0, chartCanvas.getWidth(), chartCanvas.getHeight());
     }
 }
