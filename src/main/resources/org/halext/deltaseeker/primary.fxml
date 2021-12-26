@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
@@ -16,21 +17,105 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox style="-fx-background-color: #1A2237;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.halext.deltaseeker.PrimaryController">
-   <children>
-      <MenuBar fx:id="menuBar" nodeOrientation="LEFT_TO_RIGHT" style="-fx-padding: 2.0;" stylesheets="@darkSky.css">
+
+<BorderPane styleClass="border-pane" stylesheets="@darkSky.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.halext.deltaseeker.PrimaryController">
+   <center>
+      <VBox prefHeight="512.0" snapToPixel="false" style="-fx-border-color: #9DAAD9;">
+         <children>
+            <AnchorPane prefHeight="34.0" prefWidth="827.0">
+               <children>
+                  <ComboBox fx:id="timeIntervalComboBox" layoutX="160.0" layoutY="24.0" prefHeight="25.0" prefWidth="90.0" promptText="Interval" stylesheets="@darkSky.css" />
+                  <ComboBox fx:id="timeUnitComboxBox" layoutX="160.0" layoutY="56.0" prefWidth="90.0" promptText="Units" stylesheets="@darkSky.css" />
+                  <ComboBox fx:id="frequencyUnitComboBox" layoutX="260.0" layoutY="56.0" prefHeight="25.0" prefWidth="90.0" promptText="Units" stylesheets="@darkSky.css" />
+                  <ComboBox fx:id="frequencyIntervalComboBox" layoutX="260.0" layoutY="24.0" prefHeight="25.0" prefWidth="90.0" promptText="Interval" stylesheets="@darkSky.css" />
+                  <DatePicker fx:id="startDatePicker" layoutX="14.0" layoutY="26.0" prefHeight="25.0" prefWidth="140.0" promptText="Start Date" stylesheets="@darkSky.css" />
+                  <DatePicker fx:id="endDatePicker" layoutX="14.0" layoutY="57.0" prefHeight="25.0" prefWidth="140.0" promptText="End Date" stylesheets="@darkSky.css" />
+                  <CheckBox fx:id="extendedHoursCheckBox" layoutX="14.0" layoutY="4.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="140.0" text="Extended Hours Data" textFill="WHITE" />
+                  <Label layoutX="165.0" layoutY="4.0" prefHeight="17.0" prefWidth="66.0" text="Time Period" textFill="WHITE" />
+                  <Label layoutX="260.0" layoutY="3.0" text="Candle Frequency" textFill="WHITE" />
+                  <Button layoutX="365.0" layoutY="23.0" mnemonicParsing="false" onAction="#loadRelativeStrengthIndex" prefHeight="26.0" prefWidth="38.0" text="RSI" textFill="WHITE" AnchorPane.bottomAnchor="33.0">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Button>
+                  <Button layoutX="407.0" layoutY="23.0" mnemonicParsing="false" text="MACD" textFill="WHITE" AnchorPane.bottomAnchor="33.0">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Button>
+                  <Button layoutX="462.0" layoutY="23.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="55.0" text="VWAP" textFill="WHITE" AnchorPane.bottomAnchor="33.0">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Button>
+                  <Label layoutX="406.0" layoutY="4.0" text="Indicators" textFill="WHITE" />
+                  <TextField fx:id="movingAveragePeriod" layoutX="366.0" layoutY="54.0" prefHeight="25.0" prefWidth="113.0" promptText="Moving Average" />
+                  <Button layoutX="484.0" layoutY="54.0" mnemonicParsing="false" onAction="#loadMovingAverage" prefHeight="19.0" text="Add" textFill="WHITE">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Button>
+                  <ColorPicker fx:id="movingAverageColorPicker" layoutX="529.0" layoutY="24.0" prefHeight="27.0" prefWidth="111.0" promptText="Choose Color" stylesheets="@darkSky.css" />
+                  <Label layoutX="557.0" layoutY="6.0" text="Customize" textFill="WHITE" />
+                  <TextField fx:id="tickerInput" layoutX="656.0" layoutY="25.0" prefHeight="25.0" prefWidth="82.0" stylesheets="@darkSky.css" />
+                  <Button layoutX="750.0" layoutY="25.0" mnemonicParsing="false" onAction="#loadInstrument" stylesheets="@darkSky.css" text="Search" textFill="WHITE" />
+                  <Button layoutX="655.0" layoutY="55.0" mnemonicParsing="false" onAction="#clearCanvas" prefHeight="23.0" prefWidth="84.0" text="Clear Canvas" textFill="WHITE" />
+               </children>
+            </AnchorPane>
+            <AnchorPane prefWidth="825.0">
+               <children>
+                  <BarChart fx:id="volumeChart" alternativeRowFillVisible="false" animated="false" barGap="0.0" categoryGap="0.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" layoutX="27.0" legendVisible="false" prefHeight="413.0" style="-fx-background-color: #192136;" stylesheets="@darkSky.css" verticalGridLinesVisible="false" verticalZeroLineVisible="false" AnchorPane.leftAnchor="24.0" AnchorPane.rightAnchor="0.0">
+                    <xAxis>
+                      <CategoryAxis animated="false" gapStartAndEnd="false" side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" visible="false" />
+                    </xAxis>
+                    <yAxis>
+                      <NumberAxis minorTickVisible="false" side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" visible="false" />
+                    </yAxis>
+                  </BarChart>
+                  <LineChart id="trainingChart" fx:id="mainChart" createSymbols="false" prefHeight="481.0" stylesheets="@darkSky.css" verticalGridLinesVisible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                     <xAxis>
+                        <CategoryAxis fx:id="dateCategoryAxis" side="BOTTOM" tickLabelFill="#999999" />
+                     </xAxis>
+                     <yAxis>
+                        <NumberAxis fx:id="priceAxis" autoRanging="false" side="LEFT" tickLabelFill="WHITE" />
+                     </yAxis>
+                  </LineChart>
+                  <LineChart fx:id="indicatorChart" alternativeRowFillVisible="false" animated="false" createSymbols="false" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" layoutX="27.0" layoutY="337.0" legendVisible="false" nodeOrientation="RIGHT_TO_LEFT" prefHeight="100.0" prefWidth="800.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false" visible="false" AnchorPane.topAnchor="0.0">
+                    <xAxis>
+                      <CategoryAxis animated="false" side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" visible="false" />
+                    </xAxis>
+                    <yAxis>
+                      <NumberAxis fx:id="indicatorAxis" animated="false" autoRanging="false" minorTickCount="10" side="LEFT" />
+                    </yAxis>
+                  </LineChart>
+                  <Canvas fx:id="chartCanvas" height="415.0" layoutX="42.0" layoutY="14.0" width="771.0" />
+               </children>
+            </AnchorPane>
+         </children>
+      </VBox>
+   </center>
+   <top>
+      <MenuBar fx:id="menuBar" nodeOrientation="LEFT_TO_RIGHT" style="-fx-padding: 2.0;" stylesheets="@darkSky.css" BorderPane.alignment="CENTER">
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
+                  <MenuItem mnemonicParsing="false" text="New Workspace" />
+                  <MenuItem mnemonicParsing="false" text="Save Current Workspace" />
+                  <MenuItem mnemonicParsing="false" text="Load Workspace" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" text="Save Model" />
+                  <MenuItem mnemonicParsing="false" text="Load Model" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
               <MenuItem mnemonicParsing="false" text="Close" />
             </items>
           </Menu>
@@ -39,6 +124,18 @@
               <MenuItem mnemonicParsing="false" text="Delete" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="Account">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Enter API Key" />
+                  <MenuItem mnemonicParsing="false" text="Enter Refresh Token" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" text="Get User Principals" />
+                  <MenuItem mnemonicParsing="false" text="Get Streamer Subscription Keys" />
+                  <MenuItem mnemonicParsing="false" text="Get Preferences" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" text="Update Preferences" />
+              </items>
+            </Menu>
             <Menu mnemonicParsing="false" text="Debug">
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#postAccessToken" text="Post Access Token" />
@@ -53,108 +150,67 @@
           </Menu>
         </menus>
       </MenuBar>
-      <HBox style="-fx-background-color: #1A2237;">
-         <children>
-            <TabPane prefHeight="530.0" prefWidth="310.0" style="-fx-border-color: #9DAAD9 #9DAAD9;" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE">
-              <tabs>
-                <Tab text="Watchlist">
-                  <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0">
-                           <children>
-                              <TableView fx:id="watchlistTable" layoutX="20.0" layoutY="29.0" prefWidth="240.0" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="29.0" />
-                              <ListView fx:id="watchlistsView" disable="true" layoutX="20.0" layoutY="14.0" prefWidth="240.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              <ComboBox fx:id="watchlistComboBox" layoutX="4.0" layoutY="1.0" prefHeight="29.0" prefWidth="298.0" promptText="Choose Watchlist" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="468.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                           </children>
-                        </AnchorPane>
-                  </content>
-                </Tab>
-                <Tab text="Movers">
-                  <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                  </content>
-                </Tab>
-                  <Tab text="Indicators">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                           <children>
-                              <TextField fx:id="movingAveragePeriod" layoutX="25.0" layoutY="65.0" prefHeight="42.0" prefWidth="149.0" promptText="Moving Average" />
-                              <Button layoutX="183.0" layoutY="65.0" mnemonicParsing="false" onAction="#loadMovingAverage" prefHeight="43.0" prefWidth="71.0" text="Add" textFill="WHITE">
-                                 <font>
-                                    <Font size="14.0" />
-                                 </font>
-                              </Button>
-                              <Button layoutX="25.0" layoutY="162.0" mnemonicParsing="false" onAction="#loadRelativeStrengthIndex" prefHeight="47.0" prefWidth="231.0" text="RSI" textFill="WHITE">
-                                 <font>
-                                    <Font size="20.0" />
-                                 </font>
-                              </Button>
-                              <Button layoutX="25.0" layoutY="223.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="234.0" text="MACD" textFill="WHITE">
-                                 <font>
-                                    <Font size="20.0" />
-                                 </font>
-                              </Button>
-                              <Button layoutX="25.0" layoutY="281.0" mnemonicParsing="false" prefHeight="47.0" prefWidth="232.0" text="BOLLINGER BANDS" textFill="WHITE">
-                                 <font>
-                                    <Font size="20.0" />
-                                 </font>
-                              </Button>
-                              <ColorPicker fx:id="movingAverageColorPicker" layoutX="25.0" layoutY="121.0" prefHeight="25.0" prefWidth="230.0" promptText="Choose Color" />
-                           </children>
-                        </AnchorPane>
-                    </content>
-                  </Tab>
-              </tabs>
-            </TabPane>
-            <VBox prefHeight="512.0" prefWidth="825.0" snapToPixel="false" style="-fx-border-color: #9DAAD9;">
-               <children>
-                  <AnchorPane>
+   </top>
+   <left>
+      <TabPane prefHeight="522.0" prefWidth="230.0" style="-fx-border-color: #9DAAD9;" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="Watchlist">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0">
                      <children>
-                        <AnchorPane prefHeight="34.0" prefWidth="823.0">
-                           <children>
-                              <ComboBox layoutX="9.0" layoutY="5.0" prefWidth="112.0" promptText="Time Interval" stylesheets="@darkSky.css" />
-                              <ComboBox layoutX="128.0" layoutY="5.0" prefWidth="112.0" promptText="Time Units" stylesheets="@darkSky.css" />
-                              <ComboBox layoutX="399.0" layoutY="5.0" prefHeight="25.0" prefWidth="133.0" promptText="Frequency Units" stylesheets="@darkSky.css" />
-                              <ComboBox layoutX="249.0" layoutY="5.0" promptText="Frequency Interval" stylesheets="@darkSky.css" />
-                              <DatePicker layoutX="545.0" layoutY="5.0" prefHeight="25.0" prefWidth="101.0" promptText="Start Date" stylesheets="@darkSky.css" />
-                              <DatePicker layoutX="655.0" layoutY="5.0" prefHeight="25.0" prefWidth="101.0" promptText="End Date" stylesheets="@darkSky.css" />
-                              <CheckBox layoutX="768.0" layoutY="8.0" mnemonicParsing="false" text="EXT" textFill="WHITE" />
-                           </children>
-                        </AnchorPane>
-                        <AnchorPane layoutY="34.0" prefHeight="485.0" prefWidth="825.0">
-                           <children>
-                              <BarChart fx:id="volumeChart" alternativeRowFillVisible="false" animated="false" barGap="0.0" categoryGap="0.0" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" layoutX="27.0" legendVisible="false" prefHeight="415.0" prefWidth="792.0" style="-fx-background-color: #192136;" stylesheets="@darkSky.css" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
-                                <xAxis>
-                                  <CategoryAxis animated="false" gapStartAndEnd="false" side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" visible="false" />
-                                </xAxis>
-                                <yAxis>
-                                  <NumberAxis minorTickVisible="false" side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" visible="false" />
-                                </yAxis>
-                              </BarChart>
-                              <LineChart id="trainingChart" fx:id="mainChart" createSymbols="false" prefHeight="481.0" prefWidth="819.0" stylesheets="@darkSky.css" verticalGridLinesVisible="false">
-                                 <xAxis>
-                                    <CategoryAxis side="BOTTOM" tickLabelFill="#999999" />
-                                 </xAxis>
-                                 <yAxis>
-                                    <NumberAxis fx:id="priceAxis" autoRanging="false" lowerBound="132.0" side="LEFT" tickLabelFill="WHITE" upperBound="164.0" />
-                                 </yAxis>
-                              </LineChart>
-                              <LineChart fx:id="indicatorChart" alternativeRowFillVisible="false" animated="false" createSymbols="false" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" layoutX="27.0" layoutY="337.0" legendVisible="false" nodeOrientation="RIGHT_TO_LEFT" prefHeight="100.0" prefWidth="800.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false" visible="false">
-                                <xAxis>
-                                  <CategoryAxis animated="false" side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" visible="false" />
-                                </xAxis>
-                                <yAxis>
-                                  <NumberAxis fx:id="indicatorAxis" animated="false" autoRanging="false" minorTickCount="10" side="LEFT" />
-                                </yAxis>
-                              </LineChart>
-                           </children>
-                        </AnchorPane>
+                        <TableView fx:id="watchlistTable" layoutX="20.0" layoutY="29.0" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="29.0" />
+                        <ListView fx:id="watchlistsView" disable="true" layoutX="20.0" layoutY="14.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                        <ComboBox fx:id="watchlistComboBox" layoutX="4.0" layoutY="1.0" prefHeight="29.0" promptText="Choose Watchlist" stylesheets="@darkSky.css" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
                      </children>
                   </AnchorPane>
-               </children>
-            </VBox>
-         </children>
-      </HBox>
+            </content>
+          </Tab>
+          <Tab text="Movers">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" />
+            </content>
+          </Tab>
+            <Tab text="News">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </left>
+   <right>
       <TabPane style="-fx-border-color: #9DAAD9;" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+            <Tab text="Level I">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <ComboBox fx:id="quoteComboBox" prefHeight="29.0" promptText="Choose Quote" stylesheets="@darkSky.css" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                        <TableView fx:id="watchlistTable11" layoutY="29.0" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="29.0" />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
+          <Tab text="Level II">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="222.0">
+                     <children>
+                        <ComboBox fx:id="orderBookComboBox" prefHeight="29.0" prefWidth="245.0" promptText="Choose Orderbook" stylesheets="@darkSky.css" />
+                        <TableView fx:id="watchlistTable1" layoutY="29.0" prefHeight="461.0" prefWidth="248.0" stylesheets="@darkSky.css" />
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+          <Tab text="Option Chain">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+   </right>
+   <bottom>
+      <TabPane style="-fx-border-color: #9DAAD9;" stylesheets="@darkSky.css" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
             <Tab text="Models">
               <content>
@@ -205,25 +261,19 @@
                               <Font size="18.0" />
                            </font>
                         </Label>
-                        <Separator layoutX="-1.0" layoutY="-1.0" prefHeight="2.0" prefWidth="1125.0" />
-                        <Button layoutX="1012.0" layoutY="39.0" mnemonicParsing="false" onAction="#loadInstrument" stylesheets="@darkSky.css" text="Search" textFill="WHITE" AnchorPane.bottomAnchor="11.0">
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Button>
-                        <TextField fx:id="tickerInput" layoutX="906.0" layoutY="41.0" prefHeight="25.0" prefWidth="94.0" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="11.0" />
+                        <Separator layoutX="-1.0" layoutY="-1.0" prefHeight="2.0" prefWidth="1315.0" />
                      </children>
                   </AnchorPane>
               </content>
             </Tab>
-            <Tab text="Custom">
+            <Tab text="Trade">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
               </content>
             </Tab>
           <Tab text="Orders">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <AnchorPane minHeight="0.0" minWidth="0.0">
                      <children>
                         <TableView fx:id="ordersTable" prefHeight="211.0" prefWidth="1123.0" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                      </children>
@@ -232,18 +282,34 @@
           </Tab>
           <Tab text="Positions">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <AnchorPane minHeight="0.0" minWidth="0.0">
                      <children>
-                        <TableView fx:id="positionsTable" prefHeight="211.0" prefWidth="1123.0" stylesheets="@darkSky.css" />
-                     </children></AnchorPane>
+                        <TableView fx:id="positionsTable" prefHeight="211.0" stylesheets="@darkSky.css" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                     </children>
+                  </AnchorPane>
             </content>
           </Tab>
+            <Tab text="Balances">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              </content>
+            </Tab>
+            <Tab text="Transactions">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              </content>
+            </Tab>
             <Tab text="Performance">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              </content>
+            </Tab>
+            <Tab text="Console">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
               </content>
             </Tab>
         </tabs>
       </TabPane>
-   </children>
-</VBox>
+   </bottom>
+</BorderPane>
