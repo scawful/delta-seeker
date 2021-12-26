@@ -170,11 +170,11 @@ public class Model {
         debugModelOutput = "";
     }
     
-    public void createPriceHistory( String ticker ) throws IOException {
+    public void createPriceHistory( String ticker, String pType, String p, String fType, String f, Boolean ext) throws IOException {
         try {
             this.ticker = ticker;
             client.retrieveKeyFile();
-            parser.parsePriceHistory( client.getPriceHistory( ticker, "ytd", "1", "daily", "1", true ) );
+            parser.parsePriceHistory( client.getPriceHistory( ticker, pType, p, fType, f, ext ) );
             parser.parseInstrumentData( client.getInstrument(ticker), ticker );
             debugModelOutput += "Data Set: YTD DAILY\n";
 
