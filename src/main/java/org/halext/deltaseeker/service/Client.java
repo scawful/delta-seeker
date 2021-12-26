@@ -349,6 +349,14 @@ public class Client {
         return sendAuthorizedObjectRequest(url);
     }
 
+    public JSONArray getMovers( String index, String direction, String change ) throws IOException, ParseException {
+        String baseUrl = "https://api.tdameritrade.com/v1/marketdata/{index}/movers?apikey=" + TD_API_KEY + "&direction={direction}&change={change}";
+        String newUrl = baseUrl.replace("{index}", index);
+        newUrl = newUrl.replace("{direction}", direction);
+        newUrl = newUrl.replace("{value}", change);
+        return sendAuthorizedRequest(newUrl);
+    }
+
     /**
      * WebSocket session login request for TDA API
      * 
