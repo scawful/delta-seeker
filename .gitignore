@@ -84,3 +84,10 @@ target/classes/org/halext/deltaseeker/service/graphics/Chart.class
 target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Info.plist
 target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/MacOS/JavaAppLauncher
 target/deltaseeker-1.0-BETA/Delta Seeker.app/Contents/Resources/delta1.icns
+target/classes/org/halext/deltaseeker/service/data/Position.class
+target/classes/org/halext/deltaseeker/PrimaryController$1.class
+target/classes/org/halext/deltaseeker/PrimaryController$2.class
+target/classes/org/halext/deltaseeker/PrimaryController$3.class
+target/classes/org/halext/deltaseeker/PrimaryController$4.class
+target/classes/org/halext/deltaseeker/service/data/Mover.class
+target/classes/org/halext/deltaseeker/service/data/OrderBook.class
