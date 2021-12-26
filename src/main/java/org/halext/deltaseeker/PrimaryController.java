@@ -103,6 +103,7 @@ public class PrimaryController {
 
     @FXML ListView<Object> transferFunctionTypes;
     @FXML ListView<Object> networkTypes;
+    @FXML ListView<Object> learningAlgorithmsList;
     @FXML MenuBar menuBar;
     @FXML ColorPicker movingAverageColorPicker;
 
@@ -210,6 +211,35 @@ public class PrimaryController {
         networkTypeArray.add("Perceptron");
         networkTypeArray.add("RBFNetwork");
         networkTypes.getItems().setAll(FXCollections.observableArrayList(networkTypeArray));
+    }
+
+    private void initLearningAlgorithms() {
+        ArrayList<String> algorithmArray = new ArrayList<>();
+        algorithmArray.add("AntiHebbianLearning");
+        algorithmArray.add("BackPropagation");
+        algorithmArray.add("BinaryDeltaRule");
+        algorithmArray.add("BinaryHebbianLearning");
+        algorithmArray.add("CompetitiveLearning");
+        algorithmArray.add("ConvolutionalBackpropagation");
+        algorithmArray.add("DynamicBackPropagation");
+        algorithmArray.add("GeneralizedHebbianLearning");
+        algorithmArray.add("HopfieldLearning");
+        algorithmArray.add("InstarLearning");
+        algorithmArray.add("KohonenLearning");
+        algorithmArray.add("LMS");
+        algorithmArray.add("ManhattanPropagation");
+        algorithmArray.add("MomentumBackpropagation");
+        algorithmArray.add("OjaLearning");
+        algorithmArray.add("OutstarLearning");
+        algorithmArray.add("PerceptronLearning");
+        algorithmArray.add("QuickPropagation");
+        algorithmArray.add("RBFLearning");
+        algorithmArray.add("ResilientPropagation");
+        algorithmArray.add("SigmoidDeltaRule");
+        algorithmArray.add("SimulatedAnnealingLearning");
+        algorithmArray.add("SupervisedHebbianLearning");
+        algorithmArray.add("UnsupervisedHebbianLearning");
+        learningAlgorithmsList.getItems().setAll(FXCollections.observableArrayList(algorithmArray));
     }
 
     private void initPriceHistoryParameters() {
@@ -343,6 +373,7 @@ public class PrimaryController {
 
         initTransferTypes();
         initNetworkTypes();
+        initLearningAlgorithms();
         initPriceHistoryParameters();
         initCanvas();
         try {
