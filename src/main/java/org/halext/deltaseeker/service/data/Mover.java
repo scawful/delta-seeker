@@ -21,52 +21,52 @@ public class Mover {
     private SimpleDoubleProperty totalVolume;
     private SimpleDoubleProperty change;
 
-    public SimpleDoubleProperty getChange() {
-        return this.change;
+    public double getChange() {
+        return this.change.get();
     }
 
-    public void setChange(SimpleDoubleProperty change) {
-        this.change = change;
+    public void setChange(double change) {
+        this.change = new SimpleDoubleProperty(change);
     }
 
-    public SimpleStringProperty getDescription() {
-        return this.description;
+    public String getDescription() {
+        return this.description.get();
     }
 
-    public void setDescription(SimpleStringProperty description) {
-        this.description = description;
+    public void setDescription(String description) {
+        this.description = new SimpleStringProperty(description);
     }
 
-    public SimpleStringProperty getDirection() {
-        return this.direction;
+    public String getDirection() {
+        return this.direction.get();
     }
 
-    public void setDirection(SimpleStringProperty direction) {
-        this.direction = direction;
+    public void setDirection(String direction) {
+        this.direction = new SimpleStringProperty(direction);
     }
 
-    public SimpleDoubleProperty getLast() {
-        return this.last;
+    public double getLast() {
+        return this.last.get();
     }
 
-    public void setLast(SimpleDoubleProperty last) {
-        this.last = last;
+    public void setLast(double last) {
+        this.last = new SimpleDoubleProperty(last);
     }
 
-    public SimpleStringProperty getSymbol() {
-        return this.symbol;
+    public String getSymbol() {
+        return this.symbol.get();
     }
 
-    public void setSymbol(SimpleStringProperty symbol) {
-        this.symbol = symbol;
+    public void setSymbol(String symbol) {
+        this.symbol = new SimpleStringProperty(symbol);
     }
 
-    public SimpleDoubleProperty getTotalVolume() {
-        return this.totalVolume;
+    public double getTotalVolume() {
+        return this.totalVolume.get();
     }
 
-    public void setTotalVolume(SimpleDoubleProperty totalVolume) {
-        this.totalVolume = totalVolume;
+    public void setTotalVolume(double totalVolume) {
+        this.totalVolume = new SimpleDoubleProperty(totalVolume);
     }
 
 
