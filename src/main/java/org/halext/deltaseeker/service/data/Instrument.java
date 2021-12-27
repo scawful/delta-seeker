@@ -25,13 +25,45 @@ public class Instrument {
     private SimpleStringProperty description;
     private SimpleStringProperty exchange;
     private SimpleStringProperty assetType; 
-
-    public Instrument() {
-
-    }
+    private SimpleStringProperty cashType;
+    private SimpleStringProperty optionType;
+    private SimpleStringProperty putCall;
+    private SimpleStringProperty underlyingSymbol;
 
     public String[] getInstrumentTypes() {
         return this.instrumentTypes;
+    }
+
+    public String getUnderlyingSymbol() {
+        return this.underlyingSymbol.get();
+    }
+
+    public void setUnderlyingSymboll(String us) {
+        this.underlyingSymbol = new SimpleStringProperty(us);
+    }
+
+    public String getPutCall() {
+        return this.putCall.get();
+    }
+
+    public void setPutCall(String pc) {
+        this.putCall = new SimpleStringProperty(pc);
+    }
+
+    public String getOptionType() {
+        return this.optionType.get();
+    }
+
+    public void setOptionType(String type) {
+        this.optionType = new SimpleStringProperty(type);
+    }
+
+    public String getCashType() {
+        return this.cashType.get();
+    }
+
+    public void setCashType(String type) {
+        this.cashType = new SimpleStringProperty(type);
     }
 
     public String getCusip() {
