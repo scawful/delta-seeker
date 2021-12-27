@@ -1,9 +1,6 @@
 package org.halext.deltaseeker.service;
 
 import org.json.simple.JSONObject;
-
-import javafx.beans.property.SimpleDoubleProperty;
-
 import org.json.simple.JSONArray;
 
 import java.util.ArrayList;
@@ -19,6 +16,12 @@ import org.halext.deltaseeker.service.data.Order;
 import org.halext.deltaseeker.service.data.Position;
 import org.halext.deltaseeker.service.data.Watchlist;
 
+/**
+ * Parser Class
+ * 
+ * Responsibility: Organizes data retrieved by the Client into its respective object
+ *                 
+ */
 public class Parser {
 
     public Parser() {
@@ -73,46 +76,28 @@ public class Parser {
 
     public Instrument parseIndividualInstrument( JSONObject jo ) {
         Instrument instrument = new Instrument();
+        String assetType = (String) jo.get("assetType");
         instrument.setSymbol((String) jo.get("symbol"));
-        instrument.setAssetType((String) jo.get("assetType"));
+        instrument.setAssetType(assetType);
         instrument.setCusip((String) jo.get("cusip"));
         instrument.setDescription((String) jo.get("description"));
-    // Equity:
-    // {
-    //     "assetType": "'EQUITY' or 'OPTION' or 'INDEX' or 'MUTUAL_FUND' or 'CASH_EQUIVALENT' or 'FIXED_INCOME' or 'CURRENCY'",
-    //     "cusip": "string",
-    //     "symbol": "string",
-    //     "description": "string"
-    // }
-    
-    // CashEquivalent:
-    // {
-    //     "assetType": "'EQUITY' or 'OPTION' or 'INDEX' or 'MUTUAL_FUND' or 'CASH_EQUIVALENT' or 'FIXED_INCOME' or 'CURRENCY'",
-    //     "cusip": "string",
-    //     "symbol": "string",
-    //     "description": "string",
-    //     "type": "'SAVINGS' or 'MONEY_MARKET_FUND'"
-    // }
-        
-    // Option:
-    // {
-    //     "assetType": "'EQUITY' or 'OPTION' or 'INDEX' or 'MUTUAL_FUND' or 'CASH_EQUIVALENT' or 'FIXED_INCOME' or 'CURRENCY'",
-    //     "cusip": "string",
-    //     "symbol": "string",
-    //     "description": "string",
-    //     "type": "'VANILLA' or 'BINARY' or 'BARRIER'",
-    //     "putCall": "'PUT' or 'CALL'",
-    //     "underlyingSymbol": "string",
-    //     "optionMultiplier": 0,
-    //     "optionDeliverables": [
-    //     {
-    //         "symbol": "string",
-    //         "deliverableUnits": 0,
-    //         "currencyType": "'USD' or 'CAD' or 'EUR' or 'JPY'",
-    //         "assetType": "'EQUITY' or 'OPTION' or 'INDEX' or 'MUTUAL_FUND' or 'CASH_EQUIVALENT' or 'FIXED_INCOME' or 'CURRENCY'"
-    //     }
-    //     ]
-    // }
+        if ( assetType.equals("CASH_EQUIVALENT") ) {
+            instrument.setCashType((String) jo.get("type"));
+        }
+        if ( assetType.equals("OPTION") ) {
+            instrument.setOptionType((String) jo.get("type"));
+            instrument.setPutCall((String) jo.get("putCall"));
+            instrument.setUnderlyingSymboll((String) jo.get("underlyingSymbol"));
+            //     "optionMultiplier": 0,
+            //     "optionDeliverables": [
+            //     {
+            //         "symbol": "string",
+            //         "deliverableUnits": 0,
+            //         "currencyType": "'USD' or 'CAD' or 'EUR' or 'JPY'",
+            //         "assetType": "'EQUITY' or 'OPTION' or 'INDEX' or 'MUTUAL_FUND' or 'CASH_EQUIVALENT' or 'FIXED_INCOME' or 'CURRENCY'"
+            //     }
+        }
+ 
         return instrument;
     }
 
@@ -163,11 +148,7 @@ public class Parser {
     public List<Position> parsePositions( JSONObject jo ) {
         ArrayList<Position> positions = new ArrayList<>();
 
-        // Account:
-        // {
-        //     "securitiesAccount": "The type <securitiesAccount> has the following subclasses [MarginAccount, CashAccount] descriptions are listed below"
-        // }
-
+        // The type <securitiesAccount> has the following subclasses [MarginAccount, CashAccount] descriptions are listed below"
         JSONObject account = (JSONObject) jo.get("securitiesAccount");
 
         JSONArray positionsArray = (JSONArray) account.get("positions");
@@ -187,7 +168,17 @@ public class Parser {
 
     public List<Mover> parseMovers( JSONArray ja ) {
         ArrayList<Mover> movers = new ArrayList<>();
-
+        for ( int i = 0; i < ja.size(); i++ ) {
+            Mover newMover = new Mover();
+            JSONObject eachMover = (JSONObject) ja.get(i);
+            newMover.setChange((double) eachMover.get("change"));
+            newMover.setDescription((String) eachMover.get("description"));
+            newMover.setDirection((String) eachMover.get("direction"));
+            newMover.setLast((double) eachMover.get("last"));
+            newMover.setSymbol((String) eachMover.get("symbol"));
+            newMover.setTotalVolume((double) eachMover.get("volume"));
+            movers.add(newMover);
+        }
         return movers;
     }
 
