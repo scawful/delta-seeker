@@ -137,9 +137,11 @@
             </Menu>
             <Menu mnemonicParsing="false" text="Debug">
               <items>
-                <MenuItem mnemonicParsing="false" onAction="#postAccessToken" text="Post Access Token" />
-                  <MenuItem mnemonicParsing="false" onAction="#startStreamingSession" text="Start Streaming Session" />
                   <MenuItem mnemonicParsing="false" onAction="#loadEquityCurveCSV" text="Portfolio Balance" />
+                <MenuItem mnemonicParsing="false" onAction="#postAccessToken" text="Post Access Token" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" onAction="#startStreamingSession" text="Open Streaming Session" />
+                  <MenuItem mnemonicParsing="false" text="Close Streaming Session" />
               </items>
             </Menu>
           <Menu mnemonicParsing="false" text="Help">
@@ -166,7 +168,10 @@
           </Tab>
           <Tab text="Movers">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" />
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0">
+                     <children>
+                        <TableView fx:id="moversTable" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                     </children></AnchorPane>
             </content>
           </Tab>
             <Tab text="News">
@@ -215,7 +220,7 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="200.0">
                      <children>
-                        <Label fx:id="modelOutput" layoutX="779.0" layoutY="38.0" prefHeight="165.0" prefWidth="331.0" style="-fx-background-color: #253151;" textFill="WHITE" AnchorPane.bottomAnchor="8.0">
+                        <Label fx:id="modelOutput" layoutX="789.0" layoutY="38.0" prefHeight="165.0" prefWidth="331.0" style="-fx-background-color: #253151;" textFill="WHITE" AnchorPane.bottomAnchor="8.0">
                            <font>
                               <Font size="14.0" />
                            </font>
@@ -223,46 +228,46 @@
                               <Insets bottom="5.0" left="5.0" top="5.0" />
                            </padding>
                         </Label>
-                        <TextField fx:id="maxIterationsInput" layoutX="520.0" layoutY="70.0" prefHeight="26.0" prefWidth="86.0" text="1000" AnchorPane.leftAnchor="520.0" />
-                        <Label layoutX="520.0" layoutY="50.0" text="Max Iterations" textFill="WHITE" AnchorPane.bottomAnchor="143.0" AnchorPane.leftAnchor="520.0" AnchorPane.topAnchor="50.0" />
-                        <Label layoutX="520.0" layoutY="102.0" text="Max Error" textFill="WHITE" AnchorPane.leftAnchor="520.0" />
-                        <TextField fx:id="maxErrorInput" layoutX="520.0" layoutY="120.0" prefHeight="26.0" prefWidth="86.0" text="0.001" AnchorPane.leftAnchor="520.0" />
-                        <Label layoutX="520.0" layoutY="151.0" text="Learning Rate" textFill="WHITE" AnchorPane.leftAnchor="520.0" />
-                        <TextField fx:id="learningRateInput" layoutX="520.0" layoutY="169.0" prefHeight="26.0" prefWidth="85.0" text="0.7" AnchorPane.leftAnchor="520.0" />
-                        <CheckBox fx:id="inputOpen" layoutX="626.0" layoutY="68.0" mnemonicParsing="false" selected="true" text="Open" textFill="WHITE" AnchorPane.leftAnchor="626.0" />
-                        <Label layoutX="626.0" layoutY="50.0" text="Inputs" textFill="WHITE" AnchorPane.bottomAnchor="143.0" AnchorPane.topAnchor="50.0" />
-                        <CheckBox fx:id="inputClose" layoutX="626.0" layoutY="95.0" mnemonicParsing="false" text="Close" textFill="WHITE" AnchorPane.leftAnchor="626.0" />
-                        <CheckBox fx:id="inputHigh" layoutX="626.0" layoutY="122.0" mnemonicParsing="false" text="High" textFill="WHITE" AnchorPane.leftAnchor="626.0" />
-                        <CheckBox fx:id="inputLow" layoutX="626.0" layoutY="149.0" mnemonicParsing="false" text="Low" textFill="WHITE" AnchorPane.leftAnchor="626.0" />
-                        <CheckBox fx:id="outputOpen" layoutX="709.0" layoutY="70.0" mnemonicParsing="false" text="Open" textFill="WHITE" AnchorPane.leftAnchor="709.0" />
-                        <Label layoutX="709.0" layoutY="50.0" text="Outputs" textFill="WHITE" AnchorPane.bottomAnchor="143.0" AnchorPane.leftAnchor="709.0" AnchorPane.topAnchor="50.0" />
-                        <CheckBox fx:id="outputClose" layoutX="709.0" layoutY="96.0" mnemonicParsing="false" selected="true" text="Close" textFill="WHITE" AnchorPane.leftAnchor="709.0" />
-                        <CheckBox fx:id="outputHigh" layoutX="709.0" layoutY="124.0" mnemonicParsing="false" selected="true" text="High" textFill="WHITE" AnchorPane.leftAnchor="709.0" />
-                        <CheckBox fx:id="outputLow" layoutX="709.0" layoutY="151.0" mnemonicParsing="false" selected="true" text="Low" textFill="WHITE" AnchorPane.leftAnchor="709.0" />
-                        <CheckBox fx:id="inputVolume" layoutX="626.0" layoutY="178.0" mnemonicParsing="false" text="Volume" textFill="WHITE" AnchorPane.leftAnchor="626.0" />
-                        <CheckBox fx:id="outputVolume" layoutX="709.0" layoutY="178.0" mnemonicParsing="false" text="Volume" textFill="WHITE" AnchorPane.leftAnchor="709.0" />
-                        <ListView fx:id="transferFunctionTypes" layoutX="180.0" layoutY="35.0" onMouseClicked="#changeTransferFunction" prefHeight="165.0" prefWidth="110.0" style="-fx-border-color: #253151;" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="8.0" />
-                        <Label layoutX="199.0" layoutY="16.0" text="Transfer Type" textFill="WHITE" AnchorPane.bottomAnchor="178.0" />
-                        <ListView fx:id="networkTypes" layoutX="14.0" layoutY="35.0" prefHeight="165.0" prefWidth="156.0" style="-fx-border-color: #253151;" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="8.0" />
+                        <TextField fx:id="maxIterationsInput" layoutX="530.0" layoutY="70.0" prefHeight="26.0" prefWidth="86.0" text="1000" AnchorPane.leftAnchor="530.0" />
+                        <Label layoutX="530.0" layoutY="50.0" text="Max Iterations" textFill="WHITE" AnchorPane.bottomAnchor="143.0" AnchorPane.leftAnchor="530.0" AnchorPane.topAnchor="50.0" />
+                        <Label layoutX="530.0" layoutY="102.0" text="Max Error" textFill="WHITE" AnchorPane.leftAnchor="530.0" />
+                        <TextField fx:id="maxErrorInput" layoutX="530.0" layoutY="120.0" prefHeight="26.0" prefWidth="86.0" text="0.001" AnchorPane.leftAnchor="530.0" />
+                        <Label layoutX="530.0" layoutY="151.0" text="Learning Rate" textFill="WHITE" AnchorPane.leftAnchor="530.0" />
+                        <TextField fx:id="learningRateInput" layoutX="530.0" layoutY="169.0" prefHeight="26.0" prefWidth="85.0" text="0.7" AnchorPane.leftAnchor="530.0" />
+                        <CheckBox fx:id="inputOpen" layoutX="636.0" layoutY="68.0" mnemonicParsing="false" selected="true" text="Open" textFill="WHITE" AnchorPane.leftAnchor="636.0" />
+                        <Label layoutX="636.0" layoutY="50.0" text="Inputs" textFill="WHITE" AnchorPane.bottomAnchor="143.0" AnchorPane.topAnchor="50.0" />
+                        <CheckBox fx:id="inputClose" layoutX="636.0" layoutY="95.0" mnemonicParsing="false" text="Close" textFill="WHITE" AnchorPane.leftAnchor="636.0" />
+                        <CheckBox fx:id="inputHigh" layoutX="636.0" layoutY="122.0" mnemonicParsing="false" text="High" textFill="WHITE" AnchorPane.leftAnchor="636.0" />
+                        <CheckBox fx:id="inputLow" layoutX="636.0" layoutY="149.0" mnemonicParsing="false" text="Low" textFill="WHITE" AnchorPane.leftAnchor="636.0" />
+                        <CheckBox fx:id="outputOpen" layoutX="719.0" layoutY="70.0" mnemonicParsing="false" text="Open" textFill="WHITE" AnchorPane.leftAnchor="719.0" />
+                        <Label layoutX="719.0" layoutY="50.0" text="Outputs" textFill="WHITE" AnchorPane.bottomAnchor="143.0" AnchorPane.leftAnchor="719.0" AnchorPane.topAnchor="50.0" />
+                        <CheckBox fx:id="outputClose" layoutX="719.0" layoutY="96.0" mnemonicParsing="false" selected="true" text="Close" textFill="WHITE" AnchorPane.leftAnchor="719.0" />
+                        <CheckBox fx:id="outputHigh" layoutX="719.0" layoutY="124.0" mnemonicParsing="false" selected="true" text="High" textFill="WHITE" AnchorPane.leftAnchor="719.0" />
+                        <CheckBox fx:id="outputLow" layoutX="719.0" layoutY="151.0" mnemonicParsing="false" selected="true" text="Low" textFill="WHITE" AnchorPane.leftAnchor="719.0" />
+                        <CheckBox fx:id="inputVolume" layoutX="636.0" layoutY="178.0" mnemonicParsing="false" text="Volume" textFill="WHITE" AnchorPane.leftAnchor="636.0" />
+                        <CheckBox fx:id="outputVolume" layoutX="719.0" layoutY="178.0" mnemonicParsing="false" text="Volume" textFill="WHITE" AnchorPane.leftAnchor="719.0" />
+                        <ListView fx:id="transferFunctionTypes" layoutX="190.0" layoutY="38.0" onMouseClicked="#changeTransferFunction" prefHeight="165.0" prefWidth="110.0" style="-fx-border-color: #253151;" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="8.0" />
+                        <Label layoutX="209.0" layoutY="16.0" text="Transfer Type" textFill="WHITE" AnchorPane.bottomAnchor="178.0" />
+                        <ListView fx:id="networkTypes" layoutX="14.0" layoutY="35.0" prefHeight="165.0" prefWidth="165.0" style="-fx-border-color: #253151;" stylesheets="@darkSky.css" AnchorPane.bottomAnchor="8.0" />
                         <Label layoutX="55.0" layoutY="13.0" text="Network Type" textFill="WHITE" AnchorPane.bottomAnchor="178.0" />
-                        <Label layoutX="590.0" layoutY="28.0" prefHeight="20.0" prefWidth="110.0" text="Back Propagation" textFill="WHITE">
+                        <Label layoutX="600.0" layoutY="28.0" prefHeight="20.0" prefWidth="110.0" text="Back Propagation" textFill="WHITE">
                            <font>
                               <Font size="13.0" />
                            </font>
                         </Label>
-                        <Label layoutX="576.0" layoutY="9.0" text="MultiLayerPerceptron" textFill="WHITE">
+                        <Label layoutX="586.0" layoutY="9.0" text="MultiLayerPerceptron" textFill="WHITE">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <Label layoutX="916.0" layoutY="8.0" text="Output" textFill="WHITE">
+                        <Label layoutX="926.0" layoutY="8.0" text="Output" textFill="WHITE">
                            <font>
                               <Font size="18.0" />
                            </font>
                         </Label>
                         <Separator layoutX="-1.0" layoutY="-1.0" prefHeight="2.0" prefWidth="1315.0" />
-                        <ListView fx:id="learningAlgorithmsList" layoutX="298.0" layoutY="38.0" onMouseClicked="#changeTransferFunction" prefHeight="165.0" prefWidth="210.0" style="-fx-border-color: #253151;" stylesheets="@darkSky.css" />
-                        <Label layoutX="352.0" layoutY="16.0" text="Learning Algorithms" textFill="WHITE" />
+                        <ListView fx:id="learningAlgorithmsList" layoutX="308.0" layoutY="38.0" onMouseClicked="#changeTransferFunction" prefHeight="165.0" prefWidth="210.0" style="-fx-border-color: #253151;" stylesheets="@darkSky.css" />
+                        <Label layoutX="362.0" layoutY="16.0" text="Learning Algorithms" textFill="WHITE" />
                      </children>
                   </AnchorPane>
               </content>
@@ -307,7 +312,10 @@
             </Tab>
             <Tab text="Console">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="103.0" layoutY="89.0" text="Console Output" textFill="WHITE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                     </children></AnchorPane>
               </content>
             </Tab>
         </tabs>
