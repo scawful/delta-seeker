@@ -45,6 +45,51 @@ public class Client {
     private static final String ACCOUNT_ID = "accountId";
     private static final String CONST_TICKER = "{ticker}";
 
+    /**
+     * Streamer Utilities
+     */
+    private Stream clientEndPoint;
+
+    public enum ServiceType
+    {
+        NONE,
+        ADMIN,
+        ACTIVES_NASDAQ,
+        ACTIVES_NYSE, 
+        ACTIVES_OTCBB, 
+        ACTIVES_OPTIONS, 
+        CHART_EQUITY, 
+        CHART_FOREX, 
+        CHART_FUTURES, 
+        CHART_OPTIONS, 
+        QUOTE, 
+        LEVELONE_FUTURES, 
+        LEVELONE_FOREX, 
+        LEVELONE_FUTURES_OPTIONS,
+        OPTION, 
+        NEWS_HEADLINE, 
+        TIMESALE_EQUITY, 
+        TIMESALE_FUTURES,
+        TIMESALE_FOREX, 
+        TIMESALE_OPTIONS,
+        ACCT_ACTIVITY,
+        CHART_HISTORY_FUTURES, 
+        FOREX_BOOK, 
+        FUTURES_BOOK,
+        LISTED_BOOK, 
+        NASDAQ_BOOK, 
+        OPTIONS_BOOK, 
+        FUTURES_OPTIONS_BOOK, 
+        NEWS_STORY, 
+        NEWS_HEADLINE_LIST,
+        UNKNOWN,
+    }
+
+    Integer streamerRequestId = 0;
+
+    /**
+     * API Constants
+     */
     private JSONObject userPrincipals;
     private String TD_API_KEY;
     private String TD_REFRESH_TOKEN;
@@ -61,7 +106,7 @@ public class Client {
      * @throws IOException
      */
     public void retrieveKeyFile() throws IOException {
-        String apiFileLocation = "C:/Users/starw/Code/Java/deltaseeker/src/api.txt";
+        String apiFileLocation = "/Users/scawful/Code/Java/delta-seeker/src/api.txt";
         try ( BufferedReader apiReader = new BufferedReader( new FileReader(apiFileLocation) )) {
             TD_API_KEY = apiReader.readLine();
             TD_REFRESH_TOKEN = apiReader.readLine();
@@ -197,7 +242,7 @@ public class Client {
         return ja;
     }
 
-        /**
+    /**
      * GET request with use of access token 
      * 
      * @param url
@@ -340,6 +385,12 @@ public class Client {
         return sendAuthorizedRequest(url);
     }
 
+    /**
+     * GET account data, specifically for positions in this implementation
+     * @return
+     * @throws IOException
+     * @throws ParseException
+     */
     public JSONObject getAccountData() throws IOException, ParseException {
         getUserPrincipals();
         JSONArray accounts = (JSONArray) userPrincipals.get(ACCOUNTS_STR);
@@ -349,11 +400,20 @@ public class Client {
         return sendAuthorizedObjectRequest(url);
     }
 
+    /**
+     * GET movers based on direction (up or down) and change (percent or value)
+     * @param index
+     * @param direction
+     * @param change
+     * @return
+     * @throws IOException
+     * @throws ParseException
+     */
     public JSONArray getMovers( String index, String direction, String change ) throws IOException, ParseException {
         String baseUrl = "https://api.tdameritrade.com/v1/marketdata/{index}/movers?apikey=" + TD_API_KEY + "&direction={direction}&change={change}";
         String newUrl = baseUrl.replace("{index}", index);
         newUrl = newUrl.replace("{direction}", direction);
-        newUrl = newUrl.replace("{value}", change);
+        newUrl = newUrl.replace("{change}", change);
         return sendAuthorizedRequest(newUrl);
     }
 
@@ -383,7 +443,8 @@ public class Client {
 
         requests.put("service", "ADMIN");
         requests.put("command", "LOGIN");
-        requests.put("requestid", 0);
+        requests.put("requestid", streamerRequestId.toString());
+        streamerRequestId++;
         requests.put("account", accountElements.get(ACCOUNT_ID));
         requests.put("source", streamerInfo.get("appId"));
 
@@ -413,8 +474,6 @@ public class Client {
 
         requests.put("parameters", parametersJSON);
         JSONObject requestsJSON = new JSONObject(requests);
-
-        System.out.println(requestsJSON.toJSONString().replace("\\", ""));
         return requestsJSON.toJSONString().replace("\\", "");
     }
 
@@ -431,7 +490,8 @@ public class Client {
         JSONObject streamerInfo = (JSONObject) userPrincipals.get(STREAMER_INFO);
 
         requests.put("service", "ADMIN");
-        requests.put("requestid", 1);
+        requests.put("requestid", streamerRequestId.toString());
+        streamerRequestId++;
         requests.put("command", "LOGOUT");
         requests.put("account", accountElements.get(ACCOUNT_ID) );
         requests.put("source", streamerInfo.get("appId") );
@@ -439,7 +499,28 @@ public class Client {
         requests.put( "parameters", new JSONObject() );
 
         JSONObject requestsJSON = new JSONObject(requests);
-        System.out.println(requestsJSON.toJSONString().replace("\\", ""));
+        return requestsJSON.toJSONString().replace("\\", "");
+    }
+
+    public String createServiceRequest(ServiceType service, String keys, String fields ) {
+        HashMap<String, Object> requests = new HashMap<>();
+        HashMap<String, Object> parameters = new HashMap<>();
+
+        JSONArray accounts = (JSONArray) userPrincipals.get(ACCOUNTS_STR);
+        JSONObject accountElements = (JSONObject) accounts.get(0);
+
+        requests.put("service", service.toString());
+        requests.put("requestid", streamerRequestId.toString()); 
+        streamerRequestId++;
+        requests.put("command", "SUBS");
+        requests.put("account", accountElements.get("accountId"));
+        requests.put("source", ((JSONObject) userPrincipals.get(STREAMER_INFO)).get("appId"));
+
+        parameters.put("keys", keys);
+        parameters.put("fields", fields);
+        requests.put("parameters", new JSONObject(parameters));
+
+        JSONObject requestsJSON = new JSONObject(requests);
         return requestsJSON.toJSONString().replace("\\", "");
     }
 
@@ -450,13 +531,13 @@ public class Client {
      * @throws ParseException
      * @throws DeploymentException
      * @throws java.text.ParseException
+     * @throws InterruptedException
      */
-    public void openStream() throws IOException, ParseException, DeploymentException, java.text.ParseException {
+    public void openStream() throws IOException, ParseException, DeploymentException, java.text.ParseException, InterruptedException {
         try {
             // open websocket
             JSONObject streamerInfo = (JSONObject) userPrincipals.get(STREAMER_INFO);
-            final Stream clientEndPoint = new Stream(new URI("wss://" + (String) streamerInfo.get("streamerSocketUrl") + "/ws"));
-
+            this.clientEndPoint = new Stream(new URI("wss://" + (String) streamerInfo.get("streamerSocketUrl") + "/ws"));
 
             // add listener
             clientEndPoint.addMessageHandler(new Stream.MessageHandler() {
@@ -467,10 +548,8 @@ public class Client {
 
             // send message to websocket
             clientEndPoint.sendMessage(createLoginRequest());
+            clientEndPoint.sendMessage(createServiceRequest( ServiceType.QUOTE, "TLT", "0,1,2,3,4,5,6,7,8" ));
             clientEndPoint.sendMessage(createLogoutRequest());
-
-            // wait 5 seconds for messages from websocket
-            // Thread sleep 
 
         } catch (URISyntaxException ex) {
             System.err.println("URISyntaxException exception: " + ex.getMessage());
