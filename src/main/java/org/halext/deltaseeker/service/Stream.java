@@ -11,6 +11,9 @@ import javax.websocket.DeploymentException;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
+import javax.websocket.RemoteEndpoint;
+import javax.websocket.SendHandler;
+import javax.websocket.SendResult;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
@@ -19,7 +22,8 @@ public class Stream {
 
     Session userSession = null;
     private MessageHandler messageHandler;
-
+    RemoteEndpoint asyncPeerConnection;
+    private SendHandler sendHandler;
     /**
      * Stream Class for WebSocket streaming
      * 
@@ -28,7 +32,7 @@ public class Stream {
      * @throws IOException
      */
     public Stream(URI endpointURI) throws DeploymentException, IOException {
-        try {
+        try { 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             container.connectToServer(this, endpointURI);
         } catch (IOException e) {
@@ -55,7 +59,10 @@ public class Stream {
      */
     @OnClose
     public void onClose(Session userSession, CloseReason reason) {
-        System.out.println("Closing websocket");
+        String peer = (String) userSession.getUserProperties().get("USERNAME");
+        CloseReason.CloseCode closeReasonCode = reason.getCloseCode();
+        String closeReasonMsg = reason.getReasonPhrase();
+        System.out.println("User "+ peer + " disconnected. Code: "+ closeReasonCode + ", Message: "+ closeReasonMsg);
         this.userSession = null;
     }
 
@@ -70,6 +77,13 @@ public class Stream {
             System.out.println("Client msg: " + message);
             this.messageHandler.handleMessage(message);
         }
+        // userSession.getAsyncRemote().sendText("got your message ", new SendHandler() {
+        //     @Override
+        //     public void onResult(SendResult result) {
+        //         responseHistory.add(userSession.getId() + message + result.isOK());
+        //       // pushToDB(userSession.getId(), message, result.isOK());
+        //      }
+        //    });
     }
 
     /**
