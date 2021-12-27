@@ -3,6 +3,7 @@ package org.halext.deltaseeker.service;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
 
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
@@ -11,19 +12,27 @@ import javax.websocket.DeploymentException;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
-import javax.websocket.RemoteEndpoint;
 import javax.websocket.SendHandler;
 import javax.websocket.SendResult;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
+import javax.websocket.RemoteEndpoint.Async;
 
 @ClientEndpoint
 public class Stream {
 
     Session userSession = null;
-    private MessageHandler messageHandler;
-    RemoteEndpoint asyncPeerConnection;
-    private SendHandler sendHandler;
+    private MessageHandler messageHandler; 
+    Async asyncPeerConnection;
+    String loginRequest;
+
+    private final LinkedList<String> messagesToSend = new LinkedList<String>();
+
+    /**
+     * If this client is currently sending a messages asynchronously.
+     */
+    private volatile boolean isSendingMessage = false;
+
     /**
      * Stream Class for WebSocket streaming
      * 
@@ -34,6 +43,8 @@ public class Stream {
     public Stream(URI endpointURI) throws DeploymentException, IOException {
         try { 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+            container.setAsyncSendTimeout(1000);
+            container.setDefaultMaxSessionIdleTimeout(10000);
             container.connectToServer(this, endpointURI);
         } catch (IOException e) {
             throw new IOException(e);
@@ -49,6 +60,8 @@ public class Stream {
     public void onOpen(Session userSession) {
         System.out.println("Opening websocket");
         this.userSession = userSession;
+        this.userSession.getUserProperties().put("USERNAME", "DELTASEEKER");
+        this.asyncPeerConnection = this.userSession.getAsyncRemote();
     }
 
     /**
@@ -74,16 +87,9 @@ public class Stream {
     @OnMessage
     public void onMessage(String message) {
         if (this.messageHandler != null) {
-            System.out.println("Client msg: " + message);
+            // System.out.println("Client msg: " + message);
             this.messageHandler.handleMessage(message);
         }
-        // userSession.getAsyncRemote().sendText("got your message ", new SendHandler() {
-        //     @Override
-        //     public void onResult(SendResult result) {
-        //         responseHistory.add(userSession.getId() + message + result.isOK());
-        //       // pushToDB(userSession.getId(), message, result.isOK());
-        //      }
-        //    });
     }
 
     /**
@@ -110,7 +116,16 @@ public class Stream {
      * @param message
      */
     public void sendMessage(String message) {
-        this.userSession.getAsyncRemote().sendText(message);
+        // Future<Void> deliveryTracker = userSession.getAsyncRemote().sendText(message);
+        // deliveryTracker.isDone(); //blocks
+        synchronized (messagesToSend) {
+            if (isSendingMessage) {
+                messagesToSend.add(message);
+            } else {
+                isSendingMessage = true;
+                internalSendMessageAsync(message);
+            }
+        }
     }
 
     /**
@@ -119,4 +134,43 @@ public class Stream {
     public static interface MessageHandler {
         public void handleMessage(String message);
     }
+    
+    /**
+     * Internally sends the messages asynchronously.
+     * @param msg
+     */
+    private void internalSendMessageAsync(String message) {
+        try {
+            asyncPeerConnection.sendText(message, sendHandler);
+        } catch (IllegalStateException ex) {
+            // Trying to write to the client when the session has
+            // already been closed.
+            // Ignore
+        }
+    }
+
+    /**
+     * SendHandler that will continue to send buffered messages.
+     */
+    private final SendHandler sendHandler = new SendHandler() {
+        @Override
+        public void onResult(SendResult result) {
+            if (!result.isOK()) {
+                try {
+                    userSession.close();
+                } catch (IOException ex) {
+                    // Ignore
+                }
+            }
+            synchronized (messagesToSend) {
+                if (!messagesToSend.isEmpty()) {
+                    String msg = messagesToSend.remove();
+                    internalSendMessageAsync(msg);
+                } else {
+                    isSendingMessage = false;
+                }
+
+            }
+        }
+    };
 }

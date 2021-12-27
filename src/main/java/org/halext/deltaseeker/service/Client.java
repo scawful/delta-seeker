@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.websocket.DeploymentException;
@@ -106,7 +108,7 @@ public class Client {
      * @throws IOException
      */
     public void retrieveKeyFile() throws IOException {
-        String apiFileLocation = "/Users/scawful/Code/Java/delta-seeker/src/api.txt";
+        String apiFileLocation = "C:/Users/starw/Code/Java/deltaseeker/src/api.txt";
         try ( BufferedReader apiReader = new BufferedReader( new FileReader(apiFileLocation) )) {
             TD_API_KEY = apiReader.readLine();
             TD_REFRESH_TOKEN = apiReader.readLine();
@@ -416,40 +418,50 @@ public class Client {
         newUrl = newUrl.replace("{change}", change);
         return sendAuthorizedRequest(newUrl);
     }
+    
+    public String mapToQueryString(Map<String, Object> map) {
+        StringBuilder string = new StringBuilder();
+    
+        for(Entry<String, Object> entry : map.entrySet()) {
+            string.append(entry.getKey());
+            string.append("%3D");
+            string.append(entry.getValue());
+            string.append("%26");
+        }
+    
+        return string.toString();
+    }
 
     /**
      * WebSocket session login request for TDA API
      * 
      * @return
      * @throws java.text.ParseException
+     * @throws IOException
      */
-    private String createLoginRequest() throws java.text.ParseException {
+    private String createLoginRequest() throws java.text.ParseException, IOException, ParseException {
         HashMap<String, Object> credentials = new HashMap<>();
         HashMap<String, Object> parameters = new HashMap<>();
         HashMap<String, Object> requests = new HashMap<>();
 
         JSONArray accounts = (JSONArray) userPrincipals.get(ACCOUNTS_STR);
         JSONObject accountElements = (JSONObject) accounts.get(0);
-
-        credentials.put("userid", accountElements.get(ACCOUNT_ID));
         JSONObject streamerInfo = (JSONObject) userPrincipals.get(STREAMER_INFO);
-        credentials.put(TOKEN, streamerInfo.get(TOKEN));
-        credentials.put("company", accountElements.get("company"));
-        credentials.put("segment", accountElements.get("segment"));
-        credentials.put("cddomain", accountElements.get("cddomain"));
-        credentials.put("usergroup", accountElements.get("usergroup"));
-        credentials.put("accesslevel", accountElements.get("accesslevel"));
-        credentials.put("authorized", "Y");
-
+        
         requests.put("service", "ADMIN");
+        requests.put("requestid", "1");
         requests.put("command", "LOGIN");
-        requests.put("requestid", streamerRequestId.toString());
-        streamerRequestId++;
         requests.put("account", accountElements.get(ACCOUNT_ID));
         requests.put("source", streamerInfo.get("appId"));
 
-        parameters.put(TOKEN, streamerInfo.get(TOKEN));
-        parameters.put("version", "1.0");
+        credentials.put("company", accountElements.get("company"));
+        credentials.put("segment", accountElements.get("segment"));
+        credentials.put("cddomain", accountElements.get("accountCdDomainId"));
+        credentials.put("userid", accountElements.get(ACCOUNT_ID));
+        credentials.put("usergroup", streamerInfo.get("userGroup"));
+        credentials.put("accesslevel", streamerInfo.get("accessLevel"));
+        credentials.put("authorized", "Y");
+        credentials.put("acl", streamerInfo.get("acl"));
 
         // timestamp 
         // 2021-12-18T04:29:21+0000
@@ -457,22 +469,21 @@ public class Client {
         String replaceTimestamp = timestampString.replace("+0000", "");
         Date tokenTimeStampAsDateObj = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).parse(replaceTimestamp);
         long tokenTimeStampAsMs = tokenTimeStampAsDateObj.getTime();
+        tokenTimeStampAsMs -= 18000000;
         credentials.put("timestamp", Long.toString(tokenTimeStampAsMs));
-        credentials.put("appid", accountElements.get("appid"));
-        credentials.put("acl", accountElements.get("acl"));
+        credentials.put("appid", streamerInfo.get("appId"));
 
-        // turn credentials into string 
-        JSONObject credentialsJSON = new JSONObject(credentials);
-        String temp = "";
-        for (Object key : credentialsJSON.keySet()) {
-            temp += key + "%3D" + credentialsJSON.get(key) + "%26";
-        }
+
+        // add to parameters 
+        parameters.put(TOKEN, streamerInfo.get(TOKEN));
+        parameters.put("version", "1.0");
+        String temp = mapToQueryString(credentials);
         String credentialsString = temp.substring(0, temp.length() - 3);
         parameters.put("credential", credentialsString);
 
         JSONObject parametersJSON = new JSONObject(parameters);
-
         requests.put("parameters", parametersJSON);
+
         JSONObject requestsJSON = new JSONObject(requests);
         return requestsJSON.toJSONString().replace("\\", "");
     }
@@ -490,8 +501,7 @@ public class Client {
         JSONObject streamerInfo = (JSONObject) userPrincipals.get(STREAMER_INFO);
 
         requests.put("service", "ADMIN");
-        requests.put("requestid", streamerRequestId.toString());
-        streamerRequestId++;
+        requests.put("requestid", 1);
         requests.put("command", "LOGOUT");
         requests.put("account", accountElements.get(ACCOUNT_ID) );
         requests.put("source", streamerInfo.get("appId") );
@@ -510,8 +520,7 @@ public class Client {
         JSONObject accountElements = (JSONObject) accounts.get(0);
 
         requests.put("service", service.toString());
-        requests.put("requestid", streamerRequestId.toString()); 
-        streamerRequestId++;
+        requests.put("requestid", 1); 
         requests.put("command", "SUBS");
         requests.put("account", accountElements.get("accountId"));
         requests.put("source", ((JSONObject) userPrincipals.get(STREAMER_INFO)).get("appId"));
@@ -549,7 +558,7 @@ public class Client {
             // send message to websocket
             clientEndPoint.sendMessage(createLoginRequest());
             clientEndPoint.sendMessage(createServiceRequest( ServiceType.QUOTE, "TLT", "0,1,2,3,4,5,6,7,8" ));
-            clientEndPoint.sendMessage(createLogoutRequest());
+            //clientEndPoint.sendMessage(createLogoutRequest());
 
         } catch (URISyntaxException ex) {
             System.err.println("URISyntaxException exception: " + ex.getMessage());
