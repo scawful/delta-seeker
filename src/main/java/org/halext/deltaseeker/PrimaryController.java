@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -14,6 +13,7 @@ import org.halext.deltaseeker.service.Client;
 import org.halext.deltaseeker.service.Model;
 import org.halext.deltaseeker.service.Parser;
 import org.halext.deltaseeker.service.data.Historical;
+import org.halext.deltaseeker.service.data.Mover;
 import org.halext.deltaseeker.service.data.Order;
 import org.halext.deltaseeker.service.data.OrderBook;
 import org.halext.deltaseeker.service.data.Position;
@@ -47,8 +47,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
@@ -81,10 +79,17 @@ public class PrimaryController {
     @FXML TableView<Symbol> watchlistTable;
     @FXML TableView<Position> positionsTable;
     @FXML TableView<OrderBook> orderBookTable;
+    @FXML TableView<Mover> moversTable;
 
     @FXML ComboBox<String> orderBookComboBox;
     @FXML ComboBox<String> watchlistComboBox;
     @FXML ComboBox<String> quoteComboBox;
+
+    private int timeIntervalPosition;
+    private int timeUnitPosition;
+    private int frequencyIntervalPosition;
+    private int frequencyUnitPosition;
+
     @FXML ComboBox<String> timeIntervalComboBox;
     @FXML ComboBox<String> timeUnitComboxBox;
     @FXML ComboBox<String> frequencyIntervalComboBox;
@@ -106,6 +111,8 @@ public class PrimaryController {
     @FXML ListView<Object> learningAlgorithmsList;
     @FXML MenuBar menuBar;
     @FXML ColorPicker movingAverageColorPicker;
+
+    @FXML Label consoleOutput;
 
     @FXML CheckBox inputOpen;
     @FXML CheckBox inputClose;
@@ -291,7 +298,7 @@ public class PrimaryController {
         frequencyUnitComboBox.setItems(FXCollections.observableArrayList(frequency));
 
         watchlistComboBox.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
-            int position = timeIntervalComboBox.getSelectionModel().getSelectedIndex();
+            timeIntervalPosition = timeIntervalComboBox.getSelectionModel().getSelectedIndex();
             
          }); 
 
@@ -309,16 +316,6 @@ public class PrimaryController {
 
     private void initCanvas() {
         this.graphicsContext = this.chartCanvas.getGraphicsContext2D();
-
-        // graphicsContext.setFill(Color.LIGHTGRAY);
-        // graphicsContext.setLineWidth(5);
-
-        // graphicsContext.fill();
-        // graphicsContext.strokeRect(
-        //         0,              //x of the upper left corner
-        //         0,              //y of the upper left corner
-        //         canvasWidth,    //width of the rectangle
-        //         canvasHeight);  //height of the rectangle
 
         graphicsContext.setFill(Color.RED);
         graphicsContext.setStroke( movingAverageColorPicker.getValue() );
@@ -409,6 +406,7 @@ public class PrimaryController {
 
             buildAccountOrders();
             buildAccountPositions();
+            buildMovers();
             
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -506,6 +504,33 @@ public class PrimaryController {
     @FXML
     public void buildOrderBook() {
         
+    }
+
+    @FXML
+    @SuppressWarnings("unchecked")
+    public void buildMovers() {
+        TableColumn<Mover, String> symbolColumn = new TableColumn<>("Symbol");
+        TableColumn<Mover, String> descColumn = new TableColumn<>("Description");
+        TableColumn<Mover, String> directionColumn = new TableColumn<>("Direction");
+        TableColumn<Mover, String> lastColumn = new TableColumn<>("Last");
+        TableColumn<Mover, String> changeColumn = new TableColumn<>("Change");
+        TableColumn<Mover, String> volumeColumn = new TableColumn<>("Total Volume");
+
+        symbolColumn.setCellValueFactory(new PropertyValueFactory<Mover, String>("symbol"));
+        descColumn.setCellValueFactory(new PropertyValueFactory<Mover, String>("description"));
+        directionColumn.setCellValueFactory(new PropertyValueFactory<Mover, String>("direction"));
+        lastColumn.setCellValueFactory(new PropertyValueFactory<Mover, String>("last"));
+        changeColumn.setCellValueFactory(new PropertyValueFactory<Mover, String>("change"));
+        volumeColumn.setCellValueFactory(new PropertyValueFactory<Mover, String>("totalVolume"));
+
+        try {
+            moversTable.setItems(FXCollections.observableArrayList( parser.parseMovers( client.getMovers("$SPX.X", "up", "percent") )));
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+
+        moversTable.getColumns().addAll(symbolColumn, descColumn, directionColumn, lastColumn, changeColumn, volumeColumn); 
+
     }
 
 
@@ -692,7 +717,6 @@ public class PrimaryController {
             if ( avgLoss != 0 ) {
                 relativeStrength = 100 - (100 / 1.0 + (avgGain / avgLoss));
             }
-            // relativeStrength *= 0.01;
 
             if ( relativeStrength > maxRsi ) {
                 maxRsi = relativeStrength;
@@ -793,7 +817,7 @@ public class PrimaryController {
     }
 
     @FXML
-    private void startStreamingSession() throws IOException, ParseException, DeploymentException, java.text.ParseException {
+    private void startStreamingSession() throws IOException, ParseException, DeploymentException, java.text.ParseException, InterruptedException {
         client.openStream();
     }
 
