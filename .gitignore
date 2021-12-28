@@ -91,3 +91,9 @@ target/classes/org/halext/deltaseeker/PrimaryController$3.class
 target/classes/org/halext/deltaseeker/PrimaryController$4.class
 target/classes/org/halext/deltaseeker/service/data/Mover.class
 target/classes/org/halext/deltaseeker/service/data/OrderBook.class
+target/classes/org/halext/deltaseeker/service/Client$ServiceType.class
+target/classes/org/halext/deltaseeker/service/Stream$1.class
+target/classes/org/halext/deltaseeker/service/data/Request.class
+target/classes/org/halext/deltaseeker/service/data/Response.class
+target/classes/org/halext/deltaseeker/service/data/Response$ResponseDecoder.class
+target/classes/org/halext/deltaseeker/service/data/Response$ResponseType.class
