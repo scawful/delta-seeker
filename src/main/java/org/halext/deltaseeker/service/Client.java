@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 import javax.net.ssl.HttpsURLConnection;
 import javax.websocket.DeploymentException;
 
+import org.halext.deltaseeker.service.data.Request;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -108,7 +109,7 @@ public class Client {
      * @throws IOException
      */
     public void retrieveKeyFile() throws IOException {
-        String apiFileLocation = "C:/Users/starw/Code/Java/deltaseeker/src/api.txt";
+        String apiFileLocation = "/Users/scawful/Code/Java/delta-seeker/src/api.txt";
         try ( BufferedReader apiReader = new BufferedReader( new FileReader(apiFileLocation) )) {
             TD_API_KEY = apiReader.readLine();
             TD_REFRESH_TOKEN = apiReader.readLine();
@@ -439,7 +440,7 @@ public class Client {
      * @throws java.text.ParseException
      * @throws IOException
      */
-    private String createLoginRequest() throws java.text.ParseException, IOException, ParseException {
+    private Request createLoginRequest() throws java.text.ParseException, IOException, ParseException {
         HashMap<String, Object> credentials = new HashMap<>();
         HashMap<String, Object> parameters = new HashMap<>();
         HashMap<String, Object> requests = new HashMap<>();
@@ -485,7 +486,7 @@ public class Client {
         requests.put("parameters", parametersJSON);
 
         JSONObject requestsJSON = new JSONObject(requests);
-        return requestsJSON.toJSONString().replace("\\", "");
+        return new Request(requestsJSON, requestsJSON.toJSONString().replace("\\", ""), "LOGIN");
     }
 
     /**
@@ -493,7 +494,7 @@ public class Client {
      * 
      * @return
      */
-    private String createLogoutRequest() { 
+    private Request createLogoutRequest() { 
         HashMap<String, Object> requests = new HashMap<>();
 
         JSONArray accounts = (JSONArray) userPrincipals.get(ACCOUNTS_STR);
@@ -509,10 +510,10 @@ public class Client {
         requests.put( "parameters", new JSONObject() );
 
         JSONObject requestsJSON = new JSONObject(requests);
-        return requestsJSON.toJSONString().replace("\\", "");
+        return new Request(requestsJSON, requestsJSON.toJSONString().replace("\\", ""), "LOGOUT");
     }
 
-    public String createServiceRequest(ServiceType service, String keys, String fields ) {
+    public Request createServiceRequest(ServiceType service, String keys, String fields ) {
         HashMap<String, Object> requests = new HashMap<>();
         HashMap<String, Object> parameters = new HashMap<>();
 
@@ -530,7 +531,7 @@ public class Client {
         requests.put("parameters", new JSONObject(parameters));
 
         JSONObject requestsJSON = new JSONObject(requests);
-        return requestsJSON.toJSONString().replace("\\", "");
+        return new Request(requestsJSON, requestsJSON.toJSONString().replace("\\", ""), "SUBS");
     }
 
     /**
@@ -557,11 +558,15 @@ public class Client {
 
             // send message to websocket
             clientEndPoint.sendMessage(createLoginRequest());
-            clientEndPoint.sendMessage(createServiceRequest( ServiceType.QUOTE, "TLT", "0,1,2,3,4,5,6,7,8" ));
+            clientEndPoint.sendMessage(createServiceRequest( ServiceType.LEVELONE_FUTURES, "/ES", "0,1,2,3,4,5,6,7,8" ));
             //clientEndPoint.sendMessage(createLogoutRequest());
 
         } catch (URISyntaxException ex) {
             System.err.println("URISyntaxException exception: " + ex.getMessage());
         }
+    }
+
+    public void closeStream() {
+        this.clientEndPoint.sendMessage(createLogoutRequest());
     }
 }

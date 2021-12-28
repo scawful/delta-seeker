@@ -18,6 +18,9 @@ import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 import javax.websocket.RemoteEndpoint.Async;
 
+import org.halext.deltaseeker.service.data.Request;
+import org.halext.deltaseeker.service.data.Response;
+
 @ClientEndpoint
 public class Stream {
 
@@ -26,12 +29,24 @@ public class Stream {
     Async asyncPeerConnection;
     String loginRequest;
 
-    private final LinkedList<String> messagesToSend = new LinkedList<String>();
+    private final LinkedList<Request> messagesToSend = new LinkedList<>();
+
+    private LinkedList<Response> responsesReceived = new LinkedList<>();
 
     /**
      * If this client is currently sending a messages asynchronously.
      */
     private volatile boolean isSendingMessage = false;
+    
+    /**
+     * If the client has successfully logged in to the streaming service 
+     */
+    private boolean isLoggedIn = false;
+    
+    /**
+     * If the client has started a subscription service after logging in 
+     */
+    private boolean isSubscribed = false;
 
     /**
      * Stream Class for WebSocket streaming
@@ -87,8 +102,15 @@ public class Stream {
     @OnMessage
     public void onMessage(String message) {
         if (this.messageHandler != null) {
-            // System.out.println("Client msg: " + message);
             this.messageHandler.handleMessage(message);
+            responsesReceived.add(new Response(message));
+            if ( isSubscribed ) {
+                try {
+                    this.asyncPeerConnection.sendPing(null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -115,7 +137,7 @@ public class Stream {
      *
      * @param message
      */
-    public void sendMessage(String message) {
+    public void sendMessage(Request message) {
         // Future<Void> deliveryTracker = userSession.getAsyncRemote().sendText(message);
         // deliveryTracker.isDone(); //blocks
         synchronized (messagesToSend) {
@@ -139,9 +161,20 @@ public class Stream {
      * Internally sends the messages asynchronously.
      * @param msg
      */
-    private void internalSendMessageAsync(String message) {
+    private void internalSendMessageAsync(Request message) {
         try {
-            asyncPeerConnection.sendText(message, sendHandler);
+            if ( message.getRequestType().equals("LOGIN") ) {
+                isLoggedIn = true;
+            } else if ( message.getRequestType().equals("SUBS") ) {
+                if ( isLoggedIn ) {
+                    isSubscribed = true;
+                } else {
+                    isLoggedIn = false;
+                }
+            } else if ( message.getRequestType().equals("LOGOUT") ) {
+                isLoggedIn = false;
+            }
+            asyncPeerConnection.sendText(message.getQueryString(), sendHandler);
         } catch (IllegalStateException ex) {
             // Trying to write to the client when the session has
             // already been closed.
@@ -164,7 +197,10 @@ public class Stream {
             }
             synchronized (messagesToSend) {
                 if (!messagesToSend.isEmpty()) {
-                    String msg = messagesToSend.remove();
+                    if ( isSubscribed && isLoggedIn ) {
+                        return;
+                    }
+                    Request msg = messagesToSend.remove();
                     internalSendMessageAsync(msg);
                 } else {
                     isSendingMessage = false;
