@@ -822,6 +822,11 @@ public class PrimaryController {
     }
 
     @FXML
+    private void closeStreamingSession() {
+        client.closeStream();
+    }
+
+    @FXML
     private void clearCanvas() {
         this.graphicsContext.clearRect(0, 0, chartCanvas.getWidth(), chartCanvas.getHeight());
     }

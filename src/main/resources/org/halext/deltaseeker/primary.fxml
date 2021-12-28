@@ -141,7 +141,7 @@
                 <MenuItem mnemonicParsing="false" onAction="#postAccessToken" text="Post Access Token" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#startStreamingSession" text="Open Streaming Session" />
-                  <MenuItem mnemonicParsing="false" text="Close Streaming Session" />
+                  <MenuItem mnemonicParsing="false" onAction="#closeStreamingSession" text="Close Streaming Session" />
               </items>
             </Menu>
           <Menu mnemonicParsing="false" text="Help">
