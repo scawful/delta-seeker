@@ -176,7 +176,7 @@ public class Parser {
             newMover.setDirection((String) eachMover.get("direction"));
             newMover.setLast((double) eachMover.get("last"));
             newMover.setSymbol((String) eachMover.get("symbol"));
-            newMover.setTotalVolume((double) eachMover.get("volume"));
+            newMover.setTotalVolume((long) eachMover.get("totalVolume"));
             movers.add(newMover);
         }
         return movers;

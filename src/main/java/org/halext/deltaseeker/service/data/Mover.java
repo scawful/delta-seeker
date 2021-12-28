@@ -1,6 +1,7 @@
 package org.halext.deltaseeker.service.data;
 
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 public class Mover {
@@ -18,7 +19,7 @@ public class Mover {
     private SimpleStringProperty direction;
     private SimpleDoubleProperty last;
     private SimpleStringProperty symbol;
-    private SimpleDoubleProperty totalVolume;
+    private SimpleLongProperty totalVolume;
     private SimpleDoubleProperty change;
 
     public double getChange() {
@@ -65,8 +66,8 @@ public class Mover {
         return this.totalVolume.get();
     }
 
-    public void setTotalVolume(double totalVolume) {
-        this.totalVolume = new SimpleDoubleProperty(totalVolume);
+    public void setTotalVolume(long totalVolume) {
+        this.totalVolume = new SimpleLongProperty(totalVolume);
     }
 
 
